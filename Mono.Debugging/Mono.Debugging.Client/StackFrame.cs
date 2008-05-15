@@ -49,6 +49,21 @@ namespace Mono.Debugging.Client
 			return sourceBacktrace.GetLocalVariables (index);
 		}
 
+		public ObjectValue[] GetParameters ()
+		{
+			return sourceBacktrace.GetParameters (index);
+		}
+
+		public ObjectValue GetThisReference ()
+		{
+			return sourceBacktrace.GetThisReference (index);
+		}
+
+		public ObjectValue[] GetExpressionValues (string[] expressions)
+		{
+			return sourceBacktrace.GetExpressionValues (index, expressions);
+		}
+
 		public override string ToString()
 		{
 			return String.Format("0x{0:X} in {1} at {2}:{3}", address, location.Method, location.Filename, location.Line);
