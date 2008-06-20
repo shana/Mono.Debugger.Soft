@@ -1,4 +1,4 @@
-// DebuggerSessionFactory.cs
+// AssemblyLine.cs
 //
 // Author:
 //   Lluis Sanchez Gual <lluis@novell.com>
@@ -26,14 +26,31 @@
 //
 
 using System;
-using Mono.Debugging.Client;
 
-namespace Mono.Debugging.Backend
+namespace Mono.Debugging.Client
 {
-	public interface IDebuggerSessionFactory
+	[Serializable]
+	public class AssemblyLine
 	{
-		bool CanDebugPlatform (string id);
-		bool CanDebugFile (string file);
-		DebuggerSession CreateSession ();
+		long address;
+		string code;
+
+		public string Code {
+			get {
+				return code;
+			}
+		}
+
+		public long Address {
+			get {
+				return address;
+			}
+		}
+
+		public AssemblyLine (long address, string code)
+		{
+			this.address = address;
+			this.code = code;
+		}
 	}
 }

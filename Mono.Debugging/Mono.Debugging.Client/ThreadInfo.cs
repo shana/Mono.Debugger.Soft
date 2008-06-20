@@ -1,4 +1,4 @@
-// ObjectValueKind.cs
+// ThreadInfo.cs
 //
 // Author:
 //   Lluis Sanchez Gual <lluis@novell.com>
@@ -29,10 +29,53 @@ using System;
 
 namespace Mono.Debugging.Client
 {
-	public enum ObjectValueKind {
-		Object,
-		Array,
-		Primitive,
-		Unknown
+	[Serializable]
+	public class ThreadInfo
+	{
+		int id;
+		string name;
+		string location;
+		Backtrace backtrace;
+
+		[NonSerialized]
+		DebuggerSession session;
+
+		internal void Attach (DebuggerSession session)
+		{
+			this.session = session;
+		}
+
+		public int Id {
+			get {
+				return id;
+			}
+		}
+
+		public string Name {
+			get {
+				return name;
+			}
+		}
+
+		public string Location {
+			get {
+				return location;
+			}
+		}
+
+		public Backtrace Backtrace {
+			get {
+				if (backtrace == null)
+					backtrace = session.GetBacktrace (id);
+				return backtrace;
+			}
+		}
+
+		public ThreadInfo(int id, string name, string location)
+		{
+			this.id = id;
+			this.name = name;
+			this.location = location;
+		}
 	}
 }
