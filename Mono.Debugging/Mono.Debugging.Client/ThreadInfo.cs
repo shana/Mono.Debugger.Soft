@@ -57,6 +57,10 @@ namespace Mono.Debugging.Client
 			}
 		}
 
+		internal int ProcessId {
+			get { return processId; }
+		}
+
 		public Backtrace Backtrace {
 			get {
 				if (backtrace == null)
