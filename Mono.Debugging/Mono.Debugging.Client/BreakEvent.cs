@@ -1,4 +1,4 @@
-// Breakpoint.cs
+// BreakEvent.cs
 //
 // Author:
 //   Lluis Sanchez Gual <lluis@novell.com>
@@ -30,53 +30,82 @@ using System;
 namespace Mono.Debugging.Client
 {
 	[Serializable]
-	public class Breakpoint: BreakEvent
+	public class BreakEvent
 	{
-		string fileName;
-		int line;
+		[NonSerialized] BreakpointStore store;
+		[NonSerialized] bool enabled = true;
 
-		string conditionExpression;
-		bool breakIfConditionChanges;
+		HitAction hitAction;
+		string customActionId;
+		string traceExpression;
 
-		public Breakpoint (string fileName, int line)
+		public BreakEvent()
 		{
-			this.fileName = fileName;
-			this.line = line;
 		}
 
-		public string FileName {
-			get { return fileName; }
-		}
-
-		public int Line {
-			get { return line; }
-		}
-
-		public string ConditionExpression {
+		public bool Enabled {
 			get {
-				return conditionExpression;
+				if (store == null)
+					throw new InvalidOperationException ();
+				return enabled;
 			}
 			set {
-				conditionExpression = value;
+				if (store == null)
+					throw new InvalidOperationException ();
+				enabled = value;
+				store.EnableBreakEvent (this, value);
 			}
 		}
 
-		public bool BreakIfConditionChanges {
+		public bool IsValid (DebuggerSession session)
+		{
+			if (store == null)
+				throw new InvalidOperationException ();
+			if (session == null)
+				return true;
+			return session.IsBreakEventValid (this);
+		}
+
+		public string TraceExpression {
 			get {
-				return breakIfConditionChanges;
+				return traceExpression;
 			}
 			set {
-				breakIfConditionChanges = value;
+				traceExpression = value;
 			}
 		}
-	}
 
-	public enum HitAction
-	{
-		Break,
-		PrintExpression,
-		CustomAction
-	}
+		public HitAction HitAction {
+			get {
+				return hitAction;
+			}
+			set {
+				hitAction = value;
+			}
+		}
 
-	public delegate bool BreakEventHitHandler (string actionId, BreakEvent be);
+		public string CustomActionId {
+			get {
+				return customActionId;
+			}
+			set {
+				customActionId = value;
+			}
+		}
+
+		internal BreakpointStore Store {
+			get {
+				return store;
+			}
+			set {
+				store = value;
+			}
+		}
+
+		public void CommitChanges ()
+		{
+			if (store != null)
+				store.NotifyBreakEventChanged (this);
+		}
+	}
 }
