@@ -1,0 +1,3 @@
+2009-11-02  Zoltan Varga  <vargaz@gmail.com>
+
+	* New directory containing the managed interface to the soft-mode debugger.
