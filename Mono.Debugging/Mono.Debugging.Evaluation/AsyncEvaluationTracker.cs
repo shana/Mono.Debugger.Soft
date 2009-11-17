@@ -42,6 +42,11 @@ namespace Mono.Debugging.Evaluation
 		int cancelTimestamp = 0;
 		TimedEvaluator runner = new TimedEvaluator ();
 
+		public int WaitTime {
+			get { return runner.RunTimeout; }
+			set { runner.RunTimeout = value; }
+		}
+
 		public ObjectValue Run (string name, ObjectValueFlags flags, ObjectEvaluatorDelegate evaluator)
 		{
 			string id;
