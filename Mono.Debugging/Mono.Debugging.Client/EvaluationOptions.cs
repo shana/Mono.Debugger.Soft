@@ -1,9 +1,10 @@
-// RawViewSource.cs
+//
+// EvaluationOptions.cs
 //
 // Author:
-//   Lluis Sanchez Gual <lluis@novell.com>
+//       Lluis Sanchez Gual <lluis@novell.com>
 //
-// Copyright (c) 2008 Novell, Inc (http://www.novell.com)
+// Copyright (c) 2009 Novell, Inc (http://www.novell.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,46 +23,41 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//
 
 using System;
-using Mono.Debugging.Backend;
-using Mono.Debugging.Client;
 
-namespace Mono.Debugging.Evaluation
+namespace Mono.Debugging.Client
 {
-	public class RawViewSource: RemoteFrameObject, IObjectValueSource
+	[Serializable]
+	public struct EvaluationOptions
 	{
-		object obj;
-		EvaluationContext ctx;
+		bool allowMethodEvaluation;
+		bool allowToStringCalls;
 
-		public RawViewSource (EvaluationContext ctx, object obj)
-		{
-			this.ctx = ctx;
-			this.obj = obj;
+		public static EvaluationOptions DefaultOptions {
+			get {
+				EvaluationOptions ops = new EvaluationOptions ();
+				ops.EvaluationTimeout = 1000;
+				ops.MemberEvaluationTimeout = 5000;
+				ops.AllowTargetInvoke = true;
+				ops.AllowMethodEvaluation = true;
+				ops.AllowToStringCalls = true;
+				return ops;
+			}
 		}
 
-		public static ObjectValue CreateRawView (EvaluationContext ctx, object obj)
-		{
-			RawViewSource src = new RawViewSource (ctx, obj);
-			src.Connect ();
-			return ObjectValue.CreateObject (src, new ObjectPath ("Raw View"), "", "", ObjectValueFlags.ReadOnly|ObjectValueFlags.NoRefresh, null);
+		public int EvaluationTimeout { get; set; }
+		public int MemberEvaluationTimeout { get; set; }
+		public bool AllowTargetInvoke { get; set; }
+
+		public bool AllowMethodEvaluation {
+			get { return allowMethodEvaluation && AllowTargetInvoke; }
+			set { allowMethodEvaluation = value; }
 		}
 
-		public ObjectValue[] GetChildren (ObjectPath path, int index, int count)
-		{
-			return ctx.Adapter.GetObjectValueChildren (ctx, obj, index, count, false);
-		}
-
-		public ObjectValue GetValue (ObjectPath path, EvaluationOptions options)
-		{
-			throw new NotSupportedException ();
-		}
-
-		public string SetValue (ObjectPath path, string value)
-		{
-			throw new NotSupportedException ();
+		public bool AllowToStringCalls {
+			get { return allowToStringCalls && AllowTargetInvoke; }
+			set { allowToStringCalls = value; }
 		}
 	}
 }

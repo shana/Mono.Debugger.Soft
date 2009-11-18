@@ -34,5 +34,6 @@ namespace Mono.Debugging.Backend
 	{
 		ObjectValue[] GetChildren (ObjectPath path, int index, int count);
 		string SetValue (ObjectPath path, string value);
+		ObjectValue GetValue (ObjectPath path, EvaluationOptions options);
 	}
 }
