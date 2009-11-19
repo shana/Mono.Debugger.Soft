@@ -42,6 +42,7 @@ namespace Mono.Debugging.Evaluation
 		int runningThreads;
 		bool mainThreadBusy;
 		bool useTimeout;
+		bool disposed;
 
 		public TimedEvaluator (): this (true)
 		{
@@ -127,10 +128,18 @@ namespace Mono.Debugging.Evaluation
 		{
 			Task threadTask = null;
 
-			while (true) {
+			while (!disposed) {
 
 				if (threadTask == null) {
 					newTaskEvent.WaitOne ();
+
+					lock (runningLock) {
+						if (disposed) {
+							runningThreads--;
+							return;
+						}
+					}
+
 					threadTask = currentTask;
 					currentTask = null;
 				}
@@ -143,6 +152,13 @@ namespace Mono.Debugging.Evaluation
 				threadTask = null;
 
 				OnEndEval ();
+
+				lock (runningLock) {
+					if (disposed) {
+						runningThreads--;
+						return;
+					}
+				}
 
 				lock (curTask) {
 					if (!curTask.TimedOut)
@@ -176,10 +192,18 @@ namespace Mono.Debugging.Evaluation
 			}
 		}
 
+		public void Dispose ()
+		{
+			disposed = true;
+			CancelAll ();
+			newTaskEvent.Set ();
+		}
+
 		public void CancelAll ()
 		{
 			lock (runningLock) {
 				pendingTasks.Clear ();
+				Monitor.PulseAll (runningLock);
 			}
 		}
 
