@@ -58,7 +58,6 @@ namespace Mono.Debugging.Client
 		ThreadInfo activeThread;
 		BreakEventHitHandler customBreakpointHitHandler;
 		ExceptionHandler exceptionHandler;
-		BreakpointTraceHandler breakpointTraceHandler;
 		DebuggerSessionOptions options;
 		Dictionary<string,string> resolvedExpressionCache = new Dictionary<string, string> ();
 
@@ -647,7 +646,11 @@ namespace Mono.Debugging.Client
 				string key = expression + " " + location;
 				string resolved;
 				if (!resolvedExpressionCache.TryGetValue (key, out resolved)) {
-					resolved = OnResolveExpression (expression, location);
+					try {
+						resolved = OnResolveExpression (expression, location);
+					} catch (Exception ex) {
+						OnDebuggerOutput (true, "Error while resolving expression: " + ex.Message);
+					}
 					resolvedExpressionCache [key] = resolved;
 				}
 				return resolved;
