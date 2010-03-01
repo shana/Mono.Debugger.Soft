@@ -332,12 +332,13 @@ namespace Mono.Debugging.Evaluation
 				return new ArrayValueReference (ctx, val.Value, indexes);
 			}
 
-			if (indexerExpression.Indexes.Count == 1) {
-				ValueReference vi = (ValueReference) indexerExpression.Indexes[0].AcceptVisitor (this, data);
-				vi = ctx.Adapter.GetIndexerReference (ctx, val.Value, vi.Value);
-				if (vi != null)
-					return vi;
-			}
+			object[] args = new object [indexerExpression.Indexes.Count];
+			for (int n=0; n<args.Length; n++)
+				args [n] = ((ValueReference) indexerExpression.Indexes[n].AcceptVisitor (this, data)).Value;
+
+			ValueReference res = ctx.Adapter.GetIndexerReference (ctx, val.Value, args);
+			if (res != null)
+				return res;
 
 			throw CreateNotSupportedError ();
 		}
