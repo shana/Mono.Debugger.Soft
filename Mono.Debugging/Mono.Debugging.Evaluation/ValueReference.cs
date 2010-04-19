@@ -168,6 +168,16 @@ namespace Mono.Debugging.Evaluation
 			return null;
 		}
 
+		object IObjectValueSource.GetRawValue (ObjectPath path)
+		{
+			return ctx.Adapter.ToRawValue (ctx, this, Value);
+		}
+
+		void IObjectValueSource.SetRawValue (ObjectPath path, object value)
+		{
+			Value = ctx.Adapter.FromRawValue (ctx, value);
+		}
+
 		ObjectValue[] IObjectValueSource.GetChildren (ObjectPath path, int index, int count)
 		{
 			return GetChildren (path, index, count);
