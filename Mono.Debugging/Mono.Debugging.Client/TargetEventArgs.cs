@@ -46,6 +46,10 @@ namespace Mono.Debugging.Client
 			}
 		}
 
+		public bool IsStopEvent {
+			get; set;
+		}
+
 		public BreakEvent BreakEvent {
 			get; set;
 		}
