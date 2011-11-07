@@ -1849,33 +1849,35 @@ namespace Mono.Debugging.Soft
 			resolved.Clear ();
 
 			// Now resolve normal Breakpoints
-			foreach (string s in type_to_source [type]) {
-				foreach (var bi in pending_bes.Where (b => (b.BreakEvent is Breakpoint) && !(b.BreakEvent is FunctionBreakpoint))) {
-					var bp = (Breakpoint) bi.BreakEvent;
-					if (PathsAreEqual (PathToFileName (bp.FileName), s)) {
-						bool insideLoadedRange;
-						bool genericMethod;
-						
-						loc = GetLocFromType (type, s, bp.Line, bp.Column, out genericMethod, out insideLoadedRange);
-						if (loc != null) {
-							OnDebuggerOutput (false, string.Format ("Resolved pending breakpoint at '{0}:{1},{2}' to {3} [0x{4:x5}].\n",
-							                                        s, bp.Line, bp.Column, loc.Method.Name, loc.ILOffset));
-							ResolvePendingBreakpoint (bi, loc);
-							
-							// Note: if the type or method is generic, there may be more instances so don't assume we are done resolving the breakpoint
-							if (!genericMethod && !type.IsGenericType)
-								resolved.Add (bi);
-						} else {
-							if (insideLoadedRange) {
-								bi.SetStatus (BreakEventStatus.Invalid, null);
+			if (type_to_source.ContainsKey (type)) {
+				foreach (string s in type_to_source [type]) {
+					foreach (var bi in pending_bes.Where (b => (b.BreakEvent is Breakpoint) && !(b.BreakEvent is FunctionBreakpoint))) {
+						var bp = (Breakpoint) bi.BreakEvent;
+						if (PathsAreEqual (PathToFileName (bp.FileName), s)) {
+							bool insideLoadedRange;
+							bool genericMethod;
+
+							loc = GetLocFromType (type, s, bp.Line, bp.Column, out genericMethod, out insideLoadedRange);
+							if (loc != null) {
+								OnDebuggerOutput (false, string.Format ("Resolved pending breakpoint at '{0}:{1},{2}' to {3} [0x{4:x5}].\n",
+								                                        s, bp.Line, bp.Column, loc.Method.Name, loc.ILOffset));
+								ResolvePendingBreakpoint (bi, loc);
+
+								// Note: if the type or method is generic, there may be more instances so don't assume we are done resolving the breakpoint
+								if (!genericMethod && !type.IsGenericType)
+									resolved.Add (bi);
+							} else {
+								if (insideLoadedRange) {
+									bi.SetStatus (BreakEventStatus.Invalid, null);
+								}
 							}
 						}
 					}
+
+					foreach (var be in resolved)
+						pending_bes.Remove (be);
+					resolved.Clear ();
 				}
-				
-				foreach (var be in resolved)
-					pending_bes.Remove (be);
-				resolved.Clear ();
 			}
 			
 			// Thirdly, resolve pending catchpoints
