@@ -929,9 +929,19 @@ namespace Mono.Debugging.Evaluation
 				if (mem.Length == 0)
 					return exp;
 
-				ValueReference member = GetMember (ctx, null, GetValueType (ctx, obj), obj, mem);
+				string[] props = mem.Split (new char[] { '.' });
+				ValueReference member = null;
+				object val = obj;
+
+				for (int k = 0; k < props.Length; k++) {
+					member = GetMember (ctx, null, GetValueType (ctx, val), val, props[k]);
+					if (member == null)
+						break;
+
+					val = member.Value;
+				}
+
 				if (member != null) {
-					object val = member.Value;
 					sb.Append (ctx.Evaluator.TargetObjectToString (ctx, val));
 				} else {
 					sb.Append ("{Unknown member '" + mem + "'}");
