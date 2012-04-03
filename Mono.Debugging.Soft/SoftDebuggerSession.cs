@@ -86,7 +86,8 @@ namespace Mono.Debugging.Soft
 		List<string> userAssemblyNames;
 		List<AssemblyMirror> assemblyFilters;
 		Dictionary<string, string> assemblyPathMap;
-		
+		Dictionary<AssemblyMirror,string> assemblyLocations;
+
 		bool loggedSymlinkedRuntimesBug = false;
 
 		Dictionary<Tuple<TypeMirror,string>, MethodMirror[]> overloadResolveCache;
@@ -415,6 +416,7 @@ namespace Mono.Debugging.Soft
 			}
 			
 			connectionHandle = null;
+			assemblyLocations = new Dictionary<AssemblyMirror,string> ();
 			
 			this.vm = vm;
 			
@@ -1247,8 +1249,23 @@ namespace Mono.Debugging.Soft
 			} else {
 				if (es.Events.Length != 1)
 					throw new InvalidOperationException ("EventSet has unexpected combination of events");
-				HandleEvent (es[0]);
-				vm.Resume ();
+				try {
+					HandleEvent(es[0]);
+				} catch (InvalidOperationException ioe) {
+					// The VM is not suspended!
+					return;
+				} catch (AppDomainUnloadedException aue) {
+					// AppDomain unloaded, but we can recover
+				} catch (ObjectCollectedException oce) {
+					// Object GCed, but we can recover
+				}
+				try {
+					if (es.SuspendPolicy != SuspendPolicy.None)
+						vm.Resume();
+				} catch (InvalidOperationException) {
+					// We want the VM resumed;
+					// keep eating "VM is not suspended"
+				}
 			}
 		}
 		
@@ -1392,48 +1409,31 @@ namespace Mono.Debugging.Soft
 				switch (e.EventType) {
 				case EventType.AssemblyLoad: {
 					var ae = (AssemblyLoadEvent) e;
+					string location = ae.Assembly.Location;
+					// If we miss the unload, we can reload an assembly we've already seen
+					if (assemblyLocations.ContainsValue (location)) {
+						RependBreakpoints (location);
+					}
+					assemblyLocations[ae.Assembly] = location;
 					bool isExternal = !UpdateAssemblyFilters (ae.Assembly) && userAssemblyNames != null;
 					string flagExt = isExternal? " [External]" : "";
-					OnDebuggerOutput (false, string.Format ("Loaded assembly: {0}{1}\n", ae.Assembly.Location, flagExt));
+					OnDebuggerOutput (false, string.Format ("Loaded assembly: {0}{1} ({2})\n", location, flagExt, ae.Assembly.GetHashCode ()));
 					break;
 				}
 				case EventType.AssemblyUnload: {
 					var aue = (AssemblyUnloadEvent) e;
+					string location;
+					if (!assemblyLocations.TryGetValue (aue.Assembly, out location))
+						break;
+					assemblyLocations.Remove (aue.Assembly);
 
 					if (assemblyFilters != null) {
 						int index = assemblyFilters.IndexOf (aue.Assembly);
 						if (index != -1)
 							assemblyFilters.RemoveAt (index);
 					}
-
-					// Mark affected breakpoints as pending again
-					var affectedBreakpoints = new List<KeyValuePair<EventRequest, BreakInfo>> (
-						breakpoints.Where (x=> (x.Key.Enabled && x.Value.Location.Method.DeclaringType.Assembly.Location.Equals (aue.Assembly.Location, StringComparison.OrdinalIgnoreCase)))
-					);
-					foreach (KeyValuePair<EventRequest,BreakInfo> breakpoint in affectedBreakpoints) {
-						string file = PathToFileName (breakpoint.Value.Location.SourceFile);
-						int line = breakpoint.Value.Location.LineNumber;
-						OnDebuggerOutput (false, string.Format ("Re-pending breakpoint at {0}:{1}\n", file, line));
-						breakpoints.Remove (breakpoint.Key);
-						pending_bes.Add (breakpoint.Value);
-					}
-
-					// Remove affected types from the loaded types list
-					var affectedTypes = new List<string> (
-						from pair in types
-						where pair.Value.Assembly.Location.Equals (aue.Assembly.Location, StringComparison.OrdinalIgnoreCase)
-						select pair.Key
-					);
-					foreach (string typename in affectedTypes) {
-						types.Remove (typename);
-					}
-
-					foreach (var pair in source_to_type) {
-						pair.Value.RemoveAll (delegate (TypeMirror mirror){
-							return mirror.Assembly.Location.Equals (aue.Assembly.Location, StringComparison.OrdinalIgnoreCase);
-						});
-					}
-					OnDebuggerOutput (false, string.Format ("Unloaded assembly: {0}\n", aue.Assembly.Location));
+					RependBreakpoints (location);
+					OnDebuggerOutput (false, string.Format ("Unloaded assembly: {0}\n", location));
 					break;
 				}
 				case EventType.VMStart: {
@@ -1485,6 +1485,75 @@ namespace Mono.Debugging.Soft
 					break;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Repends breakpoints that match the given assembly location.
+		/// </summary>
+		/// <param name='location'>
+		/// The location of an assembly.
+		/// </param> 
+		void RependBreakpoints (string location)
+		{
+			// Mark affected breakpoints as pending again
+			var affectedBreakpoints = breakpoints.Where(x => {
+				OnDebuggerOutput (false, string.Format ("Checking whether to repend assembly at {0} ({1})", x.Value.AssemblyLocation, location));
+				return BreakpointMatchesAssembly (x.Key, x.Value, location);
+			}).ToArray ();
+			foreach (KeyValuePair<EventRequest, BreakInfo> breakpoint in affectedBreakpoints)
+			{
+				string file = PathToFileName(breakpoint.Value.Location.SourceFile);
+				int line = breakpoint.Value.Location.LineNumber;
+				OnDebuggerOutput(false, string.Format("Re-pending breakpoint at {0}:{1}\n", file, line));
+				breakpoint.Value.AssemblyLocation = null;
+				breakpoints.Remove(breakpoint.Key);
+				pending_bes.Add(breakpoint.Value);
+			}
+			
+			// Remove affected types from the loaded types list
+			List<string> affectedTypes = new List<string>();
+			foreach (var pair in types)
+			{
+				try
+				{
+					if (!pair.Value.Assembly.Location.Equals(location, StringComparison.OrdinalIgnoreCase))
+						continue;
+				}
+				catch
+				{
+					// Don't care
+				}
+				affectedTypes.Add(pair.Key);
+			}
+			foreach (string typename in affectedTypes)
+			{
+				types.Remove(typename);
+			}
+			
+			// Remove affected types from the source => type map
+			foreach (var pair in source_to_type)
+			{
+				pair.Value.RemoveAll(delegate(TypeMirror mirror)
+				{
+					try
+					{
+						return mirror.Assembly.Location.Equals(location, StringComparison.OrdinalIgnoreCase);
+					}
+					catch
+					{
+						// Don't care
+					}
+					return true;
+				});
+			}
+		}
+
+		static bool BreakpointMatchesAssembly (EventRequest breakpointRequest, BreakInfo breakpointInfo, string location)
+		{
+			return (breakpointRequest.Enabled && (
+				string.IsNullOrEmpty (breakpointInfo.AssemblyLocation) ||
+				breakpointInfo.AssemblyLocation.Equals(location, StringComparison.OrdinalIgnoreCase)
+			));
 		}
 
 		public ObjectMirror GetExceptionObject (ThreadMirror thread)
@@ -1835,7 +1904,7 @@ namespace Mono.Debugging.Soft
 							                                        bp.FunctionName, paramList, loc.SourceFile, loc.LineNumber, loc.ILOffset));
 
 							ResolvePendingBreakpoint (bi, loc);
-							
+							bi.AssemblyLocation = type.Assembly.Location;
 							// Note: if the type or method is generic, there may be more instances so don't assume we are done resolving the breakpoint
 							if (bp.ParamTypes != null && !type.IsGenericType && !IsGenericMethod (method))
 								resolved.Add (bi);
@@ -1862,6 +1931,7 @@ namespace Mono.Debugging.Soft
 								OnDebuggerOutput (false, string.Format ("Resolved pending breakpoint at '{0}:{1},{2}' to {3} [0x{4:x5}].\n",
 								                                        s, bp.Line, bp.Column, loc.Method.Name, loc.ILOffset));
 								ResolvePendingBreakpoint (bi, loc);
+								bi.AssemblyLocation = type.Assembly.Location;
 
 								// Note: if the type or method is generic, there may be more instances so don't assume we are done resolving the breakpoint
 								if (!genericMethod && !type.IsGenericType)
@@ -2446,6 +2516,7 @@ namespace Mono.Debugging.Soft
 		public string LastConditionValue;
 		public string FileName;
 		public string TypeName;
+		public string AssemblyLocation;
 	}
 	
 	class DisconnectedException: DebuggerException
