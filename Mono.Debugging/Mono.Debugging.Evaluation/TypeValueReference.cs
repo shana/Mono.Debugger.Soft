@@ -79,7 +79,6 @@ namespace Mono.Debugging.Evaluation
 			}
 		}
 
-
 		public override object ObjectValue {
 			get {
 				throw new NotSupportedException ();
