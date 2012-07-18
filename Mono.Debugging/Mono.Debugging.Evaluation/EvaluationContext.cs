@@ -115,6 +115,11 @@ namespace Mono.Debugging.Evaluation
 			Connect ();
 		}
 
+		public bool HasChildren (ObjectPath path, EvaluationOptions options)
+		{
+			return false;
+		}
+
 		public ObjectValue[] GetChildren (ObjectPath path, int index, int count, EvaluationOptions options)
 		{
 			throw new System.NotImplementedException();
