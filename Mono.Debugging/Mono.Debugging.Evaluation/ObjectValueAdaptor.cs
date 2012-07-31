@@ -1,22 +1,22 @@
-//
+// 
 // ObjectValueAdaptor.cs
-//
+//  
 // Authors: Lluis Sanchez Gual <lluis@novell.com>
 //          Jeffrey Stedfast <jeff@xamarin.com>
-//
+// 
 // Copyright (c) 2008 Novell, Inc (http://www.novell.com)
 // Copyright (c) 2012 Xamarin Inc. (http://www.xamarin.com)
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -43,9 +43,9 @@ namespace Mono.Debugging.Evaluation
 
 		// Time to wait while evaluating before switching to async mode
 		public int DefaultEvaluationWaitTime { get; set; }
-
+		
 		public event EventHandler<BusyStateEventArgs> BusyStateChanged;
-
+		
 		AsyncEvaluationTracker asyncEvaluationTracker = new AsyncEvaluationTracker ();
 		AsyncOperationManager asyncOperationManager = new AsyncOperationManager ();
 		static Dictionary<string, string> netToCSharpTypes = new Dictionary<string, string> ();
@@ -70,17 +70,17 @@ namespace Mono.Debugging.Evaluation
 			netToCSharpTypes["System.Decimal"] = "decimal";
 			netToCSharpTypes["System.String"]  = "string";
 		}
-
+		
 		public ObjectValueAdaptor ()
 		{
 			DefaultEvaluationWaitTime = 100;
-
+			
 			asyncOperationManager.BusyStateChanged += delegate(object sender, BusyStateEventArgs e) {
 				OnBusyStateChanged (e);
 			};
 			asyncEvaluationTracker.WaitTime = DefaultEvaluationWaitTime;
 		}
-
+		
 		public void Dispose ()
 		{
 			asyncEvaluationTracker.Dispose ();
@@ -96,17 +96,17 @@ namespace Mono.Debugging.Evaluation
 				return ObjectValue.CreateFatalError (path.LastName, ex.Message, flags);
 			}
 		}
-
+		
 		public virtual string GetDisplayTypeName (string typeName)
 		{
 			return GetDisplayTypeName (typeName.Replace ('+', '.'), 0, typeName.Length);
 		}
-
+		
 		public string GetDisplayTypeName (EvaluationContext ctx, object type)
 		{
 			return GetDisplayTypeName (GetTypeName (ctx, type));
 		}
-
+		
 		string GetDisplayTypeName (string typeName, int startIndex, int endIndex)
 		{
 			// Note: '[' denotes the start of an array
@@ -117,17 +117,17 @@ namespace Mono.Debugging.Evaluation
 			string array = string.Empty;
 			int genericEndIndex = -1;
 			int typeEndIndex;
-
+			
 		retry:
 			if (tokenIndex == -1) // Simple type
 				return GetShortTypeName (typeName.Substring (startIndex, endIndex - startIndex));
-
+			
 			if (typeName[tokenIndex] == ',') // Simple type with an assembly name
 				return GetShortTypeName (typeName.Substring (startIndex, tokenIndex - startIndex));
-
+			
 			// save the index of the end of the type name
 			typeEndIndex = tokenIndex;
-
+			
 			// decode generic args first, if this is a generic type
 			if (typeName[tokenIndex] == '`') {
 				genericEndIndex = typeName.IndexOf ('[', tokenIndex, endIndex - tokenIndex);
@@ -137,11 +137,11 @@ namespace Mono.Debugging.Evaluation
 					tokenIndex = typeName.IndexOfAny (new char [] { '[', ',' }, tokenIndex, endIndex - tokenIndex);
 					goto retry;
 				}
-
+				
 				tokenIndex = genericEndIndex;
 				genericArgs = GetGenericArguments (typeName, ref tokenIndex, endIndex);
 			}
-
+			
 			// decode array rank info
 			while (tokenIndex < endIndex && typeName[tokenIndex] == '[') {
 				int arrayEndIndex = typeName.IndexOf (']', tokenIndex, endIndex - tokenIndex);
@@ -151,16 +151,16 @@ namespace Mono.Debugging.Evaluation
 				array += typeName.Substring (tokenIndex, arrayEndIndex - tokenIndex);
 				tokenIndex = arrayEndIndex;
 			}
-
+			
 			string name = typeName.Substring (startIndex, typeEndIndex - startIndex);
-
+			
 			if (genericArgs == null)
 				return GetShortTypeName (name) + array;
-
+			
 			// Use the prettier name for nullable types
 			if (name == "System.Nullable" && genericArgs.Count == 1)
 				return genericArgs[0] + "?" + array;
-
+			
 			// Insert the generic arguments next to each type.
 			// for example: Foo`1+Bar`1[System.Int32,System.String]
 			// is converted to: Foo<int>.Bar<string>
@@ -168,7 +168,7 @@ namespace Mono.Debugging.Evaluation
 			int i = typeEndIndex + 1;
 			int genericIndex = 0;
 			int argCount, next;
-
+			
 			while (i < genericEndIndex) {
 				// decode the argument count
 				argCount = 0;
@@ -176,7 +176,7 @@ namespace Mono.Debugging.Evaluation
 					argCount = (argCount * 10) + (typeName[i] - '0');
 					i++;
 				}
-
+				
 				// insert the argument types
 				sb.Append ('<');
 				while (argCount > 0 && genericIndex < genericArgs.Count) {
@@ -185,20 +185,20 @@ namespace Mono.Debugging.Evaluation
 						sb.Append (',');
 				}
 				sb.Append ('>');
-
+				
 				// Find the end of the next generic type component
 				if ((next = typeName.IndexOf ('`', i, genericEndIndex - i)) == -1)
 					next = genericEndIndex;
-
+				
 				// Append the next generic type component
 				sb.Append (typeName.Substring (i, next - i));
-
+				
 				i = next + 1;
 			}
-
+			
 			return sb.ToString () + array;
 		}
-
+		
 		List<string> GetGenericArguments (string typeName, ref int i, int endIndex)
 		{
 			// Get a list of the generic arguments.
@@ -216,7 +216,7 @@ namespace Mono.Debugging.Evaluation
 			i++;
 			return genericArgs;
 		}
-
+		
 		int FindTypeEnd (string s, int i, int endIndex)
 		{
 			int bc = 0;
@@ -236,7 +236,7 @@ namespace Mono.Debugging.Evaluation
 			}
 			return i;
 		}
-
+		
 		public virtual string GetShortTypeName (string typeName)
 		{
 			int star = typeName.IndexOf ('*');
@@ -255,7 +255,7 @@ namespace Mono.Debugging.Evaluation
 
 			return typeName;
 		}
-
+		
 		public virtual void OnBusyStateChanged (BusyStateEventArgs e)
 		{
 			EventHandler<BusyStateEventArgs> evnt = BusyStateChanged;
@@ -279,12 +279,12 @@ namespace Mono.Debugging.Evaluation
 		public abstract string GetTypeName (EvaluationContext ctx, object val);
 		public abstract object[] GetTypeArgs (EvaluationContext ctx, object type);
 		public abstract object GetBaseType (EvaluationContext ctx, object type);
-
+		
 		public virtual bool IsFlagsEnumType (EvaluationContext ctx, object type)
 		{
 			return true;
 		}
-
+		
 		public virtual IEnumerable<EnumMember> GetEnumMembers (EvaluationContext ctx, object type)
 		{
 			object longType = GetType (ctx, "System.Int64");
@@ -298,7 +298,7 @@ namespace Mono.Debugging.Evaluation
 				yield return em;
 			}
 		}
-
+		
 		public object GetBaseType (EvaluationContext ctx, object type, bool includeObjectClass)
 		{
 			object bt = GetBaseType (ctx, type);
@@ -313,12 +313,12 @@ namespace Mono.Debugging.Evaluation
 		{
 			return IsClass (GetValueType (ctx, val));
 		}
-
+		
 		public virtual bool IsExternalType (EvaluationContext ctx, object type)
 		{
 			return false;
 		}
-
+		
 		public object GetType (EvaluationContext ctx, string name)
 		{
 			return GetType (ctx, name, null);
@@ -335,7 +335,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			return default (object);
 		}
-
+		
 		public virtual object ForceLoadType (EvaluationContext ctx, string typeName)
 		{
 			return GetType (ctx, typeName);
@@ -377,19 +377,19 @@ namespace Mono.Debugging.Evaluation
 			}
 			else {
 				TypeDisplayData tdata = GetTypeDisplayData (ctx, GetValueType (ctx, obj));
-
+				
 				EvaluationResult tvalue;
 				if (!string.IsNullOrEmpty (tdata.ValueDisplayString) && ctx.Options.AllowDisplayStringEvaluation)
 					tvalue = new EvaluationResult (EvaluateDisplayString (ctx, obj, tdata.ValueDisplayString));
 				else
 					tvalue = ctx.Evaluator.TargetObjectToExpression (ctx, obj);
-
+				
 				string tname;
 				if (!string.IsNullOrEmpty (tdata.TypeDisplayString) && ctx.Options.AllowDisplayStringEvaluation)
 					tname = EvaluateDisplayString (ctx, obj, tdata.TypeDisplayString);
 				else
 					tname = GetDisplayTypeName (typeName);
-
+				
 				ObjectValue oval = ObjectValue.CreateObject (source, path, tname, tvalue, flags, null);
 				if (!string.IsNullOrEmpty (tdata.NameDisplayString) && ctx.Options.AllowDisplayStringEvaluation)
 					oval.Name = EvaluateDisplayString (ctx, obj, tdata.NameDisplayString);
@@ -414,7 +414,7 @@ namespace Mono.Debugging.Evaluation
 				return false;
 
 			bool showRawView = false;
-
+			
 			// If there is a proxy, it has to show the members of the proxy
 			object proxy = obj;
 			if (dereferenceProxy) {
@@ -431,13 +431,13 @@ namespace Mono.Debugging.Evaluation
 			BindingFlags nonNonPublicFlag = groupPrivateMembers || showRawView ? (BindingFlags)0 : BindingFlags.NonPublic;
 			BindingFlags staticFlag = ctx.Options.GroupStaticMembers ? (BindingFlags)0 : BindingFlags.Static;
 			BindingFlags access = BindingFlags.Public | BindingFlags.Instance | flattenFlag | nonNonPublicFlag | staticFlag;
-
+			
 			// Load all members to a list before creating the object values,
 			// to avoid problems with objects being invalidated due to evaluations in the target,
 			List<ValueReference> list = new List<ValueReference> ();
 			list.AddRange (GetMembersSorted (ctx, objectSource, type, proxy, access));
 			object tdataType = type;
-
+			
 			foreach (ValueReference val in list) {
 				try {
 					object decType = val.DeclaringType;
@@ -483,7 +483,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			if (obj is EvaluationResult)
 				return new ObjectValue[0];
-
+			
 			if (IsArray (ctx, obj)) {
 				ArrayElementGroup agroup = new ArrayElementGroup (ctx, CreateArrayAdaptor (ctx, obj));
 				return agroup.GetChildren (ctx.Options);
@@ -493,7 +493,7 @@ namespace Mono.Debugging.Evaluation
 				return new ObjectValue[0];
 
 			bool showRawView = false;
-
+			
 			// If there is a proxy, it has to show the members of the proxy
 			object proxy = obj;
 			if (dereferenceProxy) {
@@ -512,14 +512,14 @@ namespace Mono.Debugging.Evaluation
 			BindingFlags nonNonPublicFlag = groupPrivateMembers || showRawView ? (BindingFlags)0 : BindingFlags.NonPublic;
 			BindingFlags staticFlag = ctx.Options.GroupStaticMembers ? (BindingFlags)0 : BindingFlags.Static;
 			BindingFlags access = BindingFlags.Public | BindingFlags.Instance | flattenFlag | nonNonPublicFlag | staticFlag;
-
+			
 			// Load all members to a list before creating the object values,
 			// to avoid problems with objects being invalidated due to evaluations in the target,
 			List<ValueReference> list = new List<ValueReference> ();
 			list.AddRange (GetMembersSorted (ctx, objectSource, type, proxy, access));
 			var names = new ObjectValueNameTracker (ctx);
 			object tdataType = type;
-
+			
 			foreach (ValueReference val in list) {
 				try {
 					object decType = val.DeclaringType;
@@ -572,7 +572,7 @@ namespace Mono.Debugging.Evaluation
 					}
 					if (groupPrivateMembers && HasMembers (ctx, type, proxy, BindingFlags.Instance | BindingFlags.NonPublic | flattenFlag | staticFlag))
 						values.Add (FilteredMembersSource.CreateNonPublicsNode (ctx, objectSource, type, proxy, BindingFlags.Instance | BindingFlags.NonPublic | flattenFlag | staticFlag));
-
+					
 					if (!ctx.Options.FlattenHierarchy) {
 						object baseType = GetBaseType (ctx, type, false);
 						if (baseType != null)
@@ -595,20 +595,20 @@ namespace Mono.Debugging.Evaluation
 			}
 			return values;
 		}
-
+		
 		class ExpData
 		{
 			public EvaluationContext ctx;
 			public string exp;
 			public ObjectValueAdaptor adaptor;
-
+			
 			public ExpData (EvaluationContext ctx, string exp, ObjectValueAdaptor adaptor)
 			{
 				this.ctx = ctx;
 				this.exp = exp;
 				this.adaptor = adaptor;
 			}
-
+			
 			public ObjectValue Run ()
 			{
 				return adaptor.GetExpressionValue (ctx, exp);
@@ -721,7 +721,7 @@ namespace Mono.Debugging.Evaluation
 				}
 				return null;
 			}
-
+			
 			i = exp.Length - 1;
 			bool lastWastLetter = false;
 			while (i >= 0) {
@@ -732,41 +732,41 @@ namespace Mono.Debugging.Evaluation
 			}
 			if (lastWastLetter) {
 				string partialWord = exp.Substring (i+1);
-
+				
 				CompletionData data = new CompletionData ();
 				data.ExpressionLenght = partialWord.Length;
-
+				
 				// Local variables
-
+				
 				foreach (ValueReference vc in GetLocalVariables (ctx))
 					if (vc.Name.StartsWith (partialWord))
 						data.Items.Add (new CompletionItem (vc.Name, vc.Flags));
-
+				
 				// Parameters
-
+				
 				foreach (ValueReference vc in GetParameters (ctx))
 					if (vc.Name.StartsWith (partialWord))
 						data.Items.Add (new CompletionItem (vc.Name, vc.Flags));
-
+				
 				// Members
-
+				
 				ValueReference thisobj = GetThisReference (ctx);
-
+				
 				if (thisobj != null)
 					data.Items.Add (new CompletionItem ("this", ObjectValueFlags.Field | ObjectValueFlags.ReadOnly));
 
 				object type = GetEnclosingType (ctx);
-
+				
 				foreach (ValueReference vc in GetMembers (ctx, null, type, thisobj != null ? thisobj.Value : null))
 					if (vc.Name.StartsWith (partialWord))
 						data.Items.Add (new CompletionItem (vc.Name, vc.Flags));
-
+				
 				if (data.Items.Count > 0)
 					return data;
 			}
 			return null;
 		}
-
+		
 		public IEnumerable<ValueReference> GetMembers (EvaluationContext ctx, IObjectSource objectSource, object t, object co)
 		{
 			foreach (ValueReference val in GetMembers (ctx, t, co, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)) {
@@ -787,7 +787,7 @@ namespace Mono.Debugging.Evaluation
 				m.ParentSource = objectSource;
 			return m;
 		}
-
+		
 		protected virtual ValueReference GetMember (EvaluationContext ctx, object t, object co, string name)
 		{
 			ValueReference best = null;
@@ -804,7 +804,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			return GetMembersSorted (ctx, objectSource, t, co, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 		}
-
+		
 		internal IEnumerable<ValueReference> GetMembersSorted (EvaluationContext ctx, IObjectSource objectSource, object t, object co, BindingFlags bindingFlags)
 		{
 			List<ValueReference> list = new List<ValueReference> ();
@@ -817,7 +817,7 @@ namespace Mono.Debugging.Evaluation
 			});
 			return list;
 		}
-
+		
 		public bool HasMembers (EvaluationContext ctx, object t, object co, BindingFlags bindingFlags)
 		{
 			return GetMembers (ctx, t, co, bindingFlags).Any ();
@@ -829,18 +829,18 @@ namespace Mono.Debugging.Evaluation
 		}
 
 		public abstract bool HasMember (EvaluationContext ctx, object type, string memberName, BindingFlags bindingFlags);
-
+		
 		/// <summary>
 		/// Returns all members of a type. The following binding flags have to be honored:
 		/// BindingFlags.Static, BindingFlags.Instance, BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.DeclareOnly
 		/// </summary>
 		protected abstract IEnumerable<ValueReference> GetMembers (EvaluationContext ctx, object t, object co, BindingFlags bindingFlags);
-
+		
 		public virtual IEnumerable<object> GetNestedTypes (EvaluationContext ctx, object type)
 		{
 			yield break;
 		}
-
+		
 		public virtual object CreateArray (EvaluationContext ctx, object type, object[] values)
 		{
 			object arrType = GetType (ctx, "System.Collections.ArrayList");
@@ -848,12 +848,12 @@ namespace Mono.Debugging.Evaluation
 			object[] objTypes = new object[] { GetType (ctx, "System.Object") };
 			foreach (object value in values)
 				RuntimeInvoke (ctx, arrType, arrayList, "Add", objTypes, new object[] { value });
-
+			
 			object typof = CreateTypeObject (ctx, type);
 			objTypes = new object[] { GetType (ctx, "System.Type") };
 			return RuntimeInvoke (ctx, arrType, arrayList, "ToArray", objTypes, new object[] { typof });
 		}
-
+		
 		public virtual object ToRawValue (EvaluationContext ctx, IObjectSource source, object obj)
 		{
 			if (IsEnum (ctx, obj)) {
@@ -861,23 +861,23 @@ namespace Mono.Debugging.Evaluation
 				object c = Cast (ctx, obj, longType);
 				return TargetObjectToObject (ctx, c);
 			}
-
+			
 			if (ctx.Options.ChunkRawStrings && IsString (ctx, obj)) {
 				IStringAdaptor adaptor = CreateStringAdaptor (ctx, obj);
 				return new RawValueString (new RemoteRawValueString (adaptor, obj));
 			}
-
+			
 			if (IsPrimitive (ctx, obj))
 				return TargetObjectToObject (ctx, obj);
-
+				
 			if (IsArray (ctx, obj)) {
 				ICollectionAdaptor adaptor = CreateArrayAdaptor (ctx, obj);
 				return new RawValueArray (new RemoteRawValueArray (ctx, source, adaptor, obj));
 			}
-
+			
 			return new RawValue (new RemoteRawValue (ctx, source, obj));
 		}
-
+		
 		public virtual object FromRawValue (EvaluationContext ctx, object obj)
 		{
 			if (obj is RawValue) {
@@ -916,7 +916,7 @@ namespace Mono.Debugging.Evaluation
 				return CreateValue (ctx, obj);
 			}
 		}
-
+		
 		public virtual object TargetObjectToObject (EvaluationContext ctx, object obj)
 		{
 			if (IsNull (ctx, obj)) {
@@ -984,10 +984,10 @@ namespace Mono.Debugging.Evaluation
 				// Return the type name
 				if (ctx.Options.AllowToStringCalls)
 					return new EvaluationResult ("{" + CallToString (ctx, obj) + "}");
-
+				
 				if (!string.IsNullOrEmpty (tdata.TypeDisplayString) && ctx.Options.AllowDisplayStringEvaluation)
 					return new EvaluationResult ("{" + EvaluateDisplayString (ctx, obj, tdata.TypeDisplayString) + "}");
-
+				
 				return new EvaluationResult ("{" + GetDisplayTypeName (GetValueTypeName (ctx, obj)) + "}");
 			}
 
@@ -1045,7 +1045,7 @@ namespace Mono.Debugging.Evaluation
 				if (typeArgs.Length != np)
 					return obj;
 			}
-
+			
 			object ttype = GetType (ctx, data.ProxyType, typeArgs);
 			if (ttype == null) {
 				i = data.ProxyType.IndexOf (',');
@@ -1109,19 +1109,19 @@ namespace Mono.Debugging.Evaluation
 				string mem = exp.Substring (i, j - i).Trim ();
 				if (mem.Length == 0)
 					return exp;
-
+				
 				string[] props = mem.Split (new char[] { '.' });
 				ValueReference member = null;
 				object val = obj;
-
+				
 				for (int k = 0; k < props.Length; k++) {
 					member = GetMember (ctx, null, GetValueType (ctx, val), val, props[k]);
 					if (member == null)
 						break;
-
+					
 					val = member.Value;
 				}
-
+				
 				if (member != null) {
 					var str = ctx.Evaluator.TargetObjectToString (ctx, val);
 					if (str == null)
@@ -1150,7 +1150,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			return asyncEvaluationTracker.Run (name, flags, evaluator);
 		}
-
+		
 		public bool IsEvaluating {
 			get { return asyncEvaluationTracker.IsEvaluating; }
 		}
@@ -1194,24 +1194,24 @@ namespace Mono.Debugging.Evaluation
 				flags |= BindingFlags.IgnoreCase;
 			return HasMethod (ctx, targetType, methodName, null, flags);
 		}
-
+		
 		public bool HasMethod (EvaluationContext ctx, object targetType, string methodName, BindingFlags flags)
 		{
 			return HasMethod (ctx, targetType, methodName, null, flags);
 		}
-
+		
 		// argTypes can be null, meaning that it has to return true if there is any method with that name
 		// flags will only contain Static or Instance flags
 		public virtual bool HasMethod (EvaluationContext ctx, object targetType, string methodName, object[] argTypes, BindingFlags flags)
 		{
 			return false;
 		}
-
+		
 		public virtual object RuntimeInvoke (EvaluationContext ctx, object targetType, object target, string methodName, object[] argTypes, object[] argValues)
 		{
 			return null;
 		}
-
+		
 		public virtual ValidationResult ValidateExpression (EvaluationContext ctx, string expression)
 		{
 			return ctx.Evaluator.ValidateExpression (ctx, expression);
@@ -1225,7 +1225,7 @@ namespace Mono.Debugging.Evaluation
 		public string TypeDisplayString { get; internal set; }
 		public string NameDisplayString { get; internal set; }
 		public bool IsCompilerGenerated { get; internal set; }
-
+		
 		public bool IsProxyType {
 			get { return ProxyType != null; }
 		}
@@ -1233,7 +1233,7 @@ namespace Mono.Debugging.Evaluation
 		public static readonly TypeDisplayData Default = new TypeDisplayData (null, null, null, null, false, null);
 
 		public Dictionary<string, DebuggerBrowsableState> MemberData { get; internal set; }
-
+		
 		public TypeDisplayData (string proxyType, string valueDisplayString, string typeDisplayString,
 			string nameDisplayString, bool isCompilerGenerated, Dictionary<string, DebuggerBrowsableState> memberData)
 		{
@@ -1257,17 +1257,17 @@ namespace Mono.Debugging.Evaluation
 				return DebuggerBrowsableState.Collapsed;
 		}
 	}
-
+	
 	class ObjectValueNameTracker
 	{
 		Dictionary<string,KeyValuePair<ObjectValue, ValueReference>> names = new Dictionary<string,KeyValuePair<ObjectValue, ValueReference>> ();
 		EvaluationContext ctx;
-
+		
 		public ObjectValueNameTracker (EvaluationContext ctx)
 		{
 			this.ctx = ctx;
 		}
-
+		
 		/// <summary>
 		/// Disambiguate the ObjectValue's name (in the case where the property name also exists in a base class).
 		/// </summary>
@@ -1282,7 +1282,7 @@ namespace Mono.Debugging.Evaluation
 			KeyValuePair<ObjectValue, ValueReference> other;
 			if (names.TryGetValue (oval.Name, out other)) {
 				object tn = val.DeclaringType;
-
+				
 				if (tn != null)
 					oval.Name += " (" + ctx.Adapter.GetDisplayTypeName (ctx, tn) + ")";
 				if (!other.Key.Name.EndsWith (")")) {
@@ -1291,11 +1291,11 @@ namespace Mono.Debugging.Evaluation
 						other.Key.Name += " (" + ctx.Adapter.GetDisplayTypeName (ctx, tn) + ")";
 				}
 			}
-
+			
 			names [oval.Name] = new KeyValuePair<ObjectValue, ValueReference> (oval, val);
 		}
 	}
-
+	
 	public struct EnumMember
 	{
 		public string Name { get; set; }
