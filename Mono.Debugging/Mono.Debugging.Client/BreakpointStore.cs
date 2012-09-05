@@ -37,7 +37,7 @@ namespace Mono.Debugging.Client
 	public sealed class BreakpointStore: ICollection<BreakEvent>
 	{
 		List<BreakEvent> breakpoints = new List<BreakEvent> ();
-
+		
 		public int Count {
 			get {
 				return breakpoints.Count;
@@ -58,7 +58,7 @@ namespace Mono.Debugging.Client
 		{
 			return Add (filename, line, true);
 		}
-
+		
 		public Breakpoint Add (string filename, int line, bool activate)
 		{
 			if (IsReadOnly)
@@ -72,7 +72,7 @@ namespace Mono.Debugging.Client
 		{
 			Add (bp);
 		}
-
+		
 		public bool Add (BreakEvent bp)
 		{
 			if (IsReadOnly)
@@ -82,7 +82,7 @@ namespace Mono.Debugging.Client
 			OnBreakEventAdded (bp);
 			return true;
 		}
-
+		
 		public Catchpoint AddCatchpoint (string exceptioName)
 		{
 			if (IsReadOnly)
@@ -91,13 +91,13 @@ namespace Mono.Debugging.Client
 			Add (cp);
 			return cp;
 		}
-
+		
 		public bool Remove (string filename, int line)
 		{
 			if (IsReadOnly)
 				return false;
 			filename = System.IO.Path.GetFullPath (filename);
-
+			
 			for (int n=0; n<breakpoints.Count; n++) {
 				Breakpoint bp = breakpoints [n] as Breakpoint;
 				if (bp != null && FileNameEquals (bp.FileName, filename) && bp.Line == line) {
@@ -108,7 +108,7 @@ namespace Mono.Debugging.Client
 			}
 			return true;
 		}
-
+		
 		public bool RemoveCatchpoint (string exceptionName)
 		{
 			if (IsReadOnly)
@@ -124,7 +124,7 @@ namespace Mono.Debugging.Client
 			}
 			return true;
 		}
-
+		
 		public bool Remove (BreakEvent bp)
 		{
 			if (!IsReadOnly && breakpoints.Remove (bp)) {
@@ -133,12 +133,12 @@ namespace Mono.Debugging.Client
 			} else
 				return false;
 		}
-
+		
 		public Breakpoint Toggle (string filename, int line)
 		{
 			if (IsReadOnly)
 				return null;
-
+			
 			ReadOnlyCollection<Breakpoint> col = GetBreakpointsAtFileLine (filename, line);
 			if (col.Count > 0) {
 				foreach (Breakpoint bp in col)
@@ -149,7 +149,7 @@ namespace Mono.Debugging.Client
 				return Add (filename, line);
 			}
 		}
-
+		
 		public ReadOnlyCollection<Breakpoint> GetBreakpoints ()
 		{
 			List<Breakpoint> list = new List<Breakpoint> ();
@@ -159,7 +159,7 @@ namespace Mono.Debugging.Client
 			}
 			return list.AsReadOnly ();
 		}
-
+		
 		public ReadOnlyCollection<Catchpoint> GetCatchpoints ()
 		{
 			List<Catchpoint> list = new List<Catchpoint> ();
@@ -169,42 +169,42 @@ namespace Mono.Debugging.Client
 			}
 			return list.AsReadOnly ();
 		}
-
+		
 		public ReadOnlyCollection<Breakpoint> GetBreakpointsAtFile (string filename)
 		{
 			List<Breakpoint> list = new List<Breakpoint> ();
-
+			
 			try {
 				filename = System.IO.Path.GetFullPath (filename);
 			} catch {
 				return list.AsReadOnly ();
 			}
-
+			
 			foreach (BreakEvent be in breakpoints) {
 				Breakpoint bp = be as Breakpoint;
 				if (bp != null && FileNameEquals (bp.FileName, filename))
 					list.Add (bp);
 			}
-
+			
 			return list.AsReadOnly ();
 		}
-
+		
 		public ReadOnlyCollection<Breakpoint> GetBreakpointsAtFileLine (string filename, int line)
 		{
 			List<Breakpoint> list = new List<Breakpoint> ();
-
+			
 			try {
 				filename = System.IO.Path.GetFullPath (filename);
 			} catch {
 				return list.AsReadOnly ();
 			}
-
+			
 			foreach (BreakEvent be in breakpoints) {
 				Breakpoint bp = be as Breakpoint;
 				if (bp != null && FileNameEquals (bp.FileName, filename) && (bp.OriginalLine == line || bp.Line == line))
 					list.Add (bp);
 			}
-
+			
 			return list.AsReadOnly ();
 		}
 
@@ -246,30 +246,30 @@ namespace Mono.Debugging.Client
 		{
 			breakpoints.CopyTo (array, arrayIndex);
 		}
-
+		
 		public void UpdateBreakpointLine (Breakpoint bp, int newLine)
 		{
 			if (IsReadOnly)
 				return;
-
+			
 			bp.SetLine (newLine);
 			NotifyBreakEventChanged (bp);
 		}
-
+		
 		internal void AdjustBreakpointLine (Breakpoint bp, int newLine)
 		{
 			if (IsReadOnly)
 				return;
-
+			
 			bp.SetAdjustedLine (newLine);
 			NotifyBreakEventChanged (bp);
 		}
-
+		
 		internal void ResetAdjustedBreakpoints ()
 		{
 			if (IsReadOnly)
 				return;
-
+			
 			foreach (Breakpoint bp in breakpoints.Where (b => b is Breakpoint).ToArray ()) {
 				if (bp.HasAdjustedLine) {
 					bp.ResetAdjustedLine ();
@@ -277,7 +277,7 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
+		
 		public XmlElement Save ()
 		{
 			XmlDocument doc = new XmlDocument ();
@@ -288,7 +288,7 @@ namespace Mono.Debugging.Client
 			}
 			return elem;
 		}
-
+		
 		public void Load (XmlElement rootElem)
 		{
 			Clear ();
@@ -309,7 +309,7 @@ namespace Mono.Debugging.Client
 			else
 				return file1 == file2;
 		}
-
+		
 		internal bool EnableBreakEvent (BreakEvent be, bool enabled)
 		{
 			if (IsReadOnly)
@@ -321,7 +321,7 @@ namespace Mono.Debugging.Client
 			NotifyStatusChanged (be);
 			return true;
 		}
-
+		
 		void OnBreakEventAdded (BreakEvent be)
 		{
 			OnChanged ();
@@ -338,7 +338,7 @@ namespace Mono.Debugging.Client
 					catchpointAdded (this, new CatchpointEventArgs ((Catchpoint)be));
 			}
 		}
-
+		
 		void OnBreakEventRemoved (BreakEvent be)
 		{
 			OnChanged ();
@@ -355,14 +355,14 @@ namespace Mono.Debugging.Client
 					catchpointRemoved (this, new CatchpointEventArgs ((Catchpoint)be));
 			}
 		}
-
+		
 		void OnChanged ()
 		{
 			EventHandler changed = Changed;
 			if (changed != null)
 				changed (this, EventArgs.Empty);
 		}
-
+		
 		internal void NotifyStatusChanged (BreakEvent be)
 		{
 			try {
@@ -382,7 +382,7 @@ namespace Mono.Debugging.Client
 				// Ignore
 			}
 		}
-
+		
 		internal void NotifyBreakEventChanged (BreakEvent be)
 		{
 			try {
@@ -403,7 +403,7 @@ namespace Mono.Debugging.Client
 				// Ignore
 			}
 		}
-
+		
 		internal void NotifyBreakEventUpdated (BreakEvent be)
 		{
 			try {
@@ -423,7 +423,7 @@ namespace Mono.Debugging.Client
 				// Ignore
 			}
 		}
-
+		
 		public event EventHandler<BreakpointEventArgs> BreakpointAdded;
 		public event EventHandler<BreakpointEventArgs> BreakpointRemoved;
 		public event EventHandler<BreakpointEventArgs> BreakpointStatusChanged;
@@ -441,14 +441,14 @@ namespace Mono.Debugging.Client
 		public event EventHandler<BreakEventArgs> BreakEventUpdated;
 		public event EventHandler Changed;
 		public event EventHandler<ReadOnlyCheckEventArgs> CheckingReadOnly;
-
+		
 		internal event EventHandler<BreakEventArgs> BreakEventEnableStatusChanged;
 	}
-
+	
 	public class ReadOnlyCheckEventArgs: EventArgs
 	{
 		internal bool IsReadOnly;
-
+		
 		public void SetReadOnly (bool isReadOnly)
 		{
 			IsReadOnly = IsReadOnly || isReadOnly;

@@ -40,7 +40,7 @@ namespace Mono.Debugging.Client
 		NotSupported = 1 << 5,  // The expression is valid but its evaluation is not supported
 		Evaluating = 1 << 6,    // The expression is being evaluated. The value will be updated when done.
 		KindMask = 0x000000ff,
-
+		
 		Field = 1 << 8,
 		Property = 1 << 9,
 		Parameter = 1 << 10,
@@ -52,14 +52,14 @@ namespace Mono.Debugging.Client
 		Namespace = 1 << 16,
 		Group = 1 << 17,
 		OriginMask = 0x0003ff00,
-
+		
 		Global = 1 << 18,	// For fields, it means static
 		ReadOnly = 1 << 19,
 		NoRefresh = 1 << 20, // When set, this value can't be refreshed
 		EvaluatingGroup = 1 << 21, // When set, this value represents a set of values being evaluated
 		                           // When evaluation ends, the value is updated, and the children are the
 		                           // values represented by this group
-
+		
 		// For field and property
 		Public = 1 << 24,
 		Protected = 1 << 25,

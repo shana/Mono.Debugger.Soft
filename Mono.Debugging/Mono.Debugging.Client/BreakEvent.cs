@@ -35,17 +35,17 @@ namespace Mono.Debugging.Client
 	{
 		[NonSerialized] BreakpointStore store;
 		[NonSerialized] bool enabled = true;
-
+		
 		HitAction hitAction = HitAction.Break;
 		string customActionId;
 		string traceExpression;
 		int hitCount;
 		string lastTraceValue;
-
+		
 		public BreakEvent()
 		{
 		}
-
+		
 		internal BreakEvent (XmlElement elem)
 		{
 			string s = elem.GetAttribute ("enabled");
@@ -64,7 +64,7 @@ namespace Mono.Debugging.Client
 			if (s.Length > 0)
 				hitCount = int.Parse (s);
 		}
-
+		
 		internal virtual XmlElement ToXml (XmlDocument doc)
 		{
 			XmlElement elem = doc.CreateElement (GetType().Name);
@@ -80,7 +80,7 @@ namespace Mono.Debugging.Client
 				elem.SetAttribute ("hitCount", hitCount.ToString ());
 			return elem;
 		}
-
+		
 		internal static BreakEvent FromXml (XmlElement elem)
 		{
 			if (elem.Name == "FunctionBreakpoint")
@@ -92,7 +92,7 @@ namespace Mono.Debugging.Client
 			else
 				return null;
 		}
-
+		
 		/// <summary>
 		/// Gets or sets a value indicating whether this <see cref="Mono.Debugging.Client.BreakEvent"/> is enabled.
 		/// </summary>
@@ -130,7 +130,7 @@ namespace Mono.Debugging.Client
 				return BreakEventStatus.Disconnected;
 			return session.GetBreakEventStatus (this);
 		}
-
+		
 		/// <summary>
 		/// Gets a message describing the status of the break event
 		/// </summary>
@@ -146,7 +146,7 @@ namespace Mono.Debugging.Client
 				return string.Empty;
 			return session.GetBreakEventStatusMessage (this);
 		}
-
+		
 		/// <summary>
 		/// Gets or sets the expression to be traced when the breakpoint is hit
 		/// </summary>
@@ -186,7 +186,7 @@ namespace Mono.Debugging.Client
 				hitAction = value;
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets or sets the custom action identifier.
 		/// </summary>
@@ -215,7 +215,7 @@ namespace Mono.Debugging.Client
 				store = value;
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets or sets the hit count.
 		/// </summary>
@@ -233,7 +233,7 @@ namespace Mono.Debugging.Client
 				hitCount = value;
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets the last value traced.
 		/// </summary>
@@ -248,7 +248,7 @@ namespace Mono.Debugging.Client
 				lastTraceValue = value;
 			}
 		}
-
+		
 		/// <summary>
 		/// Commits changes done in the break event properties
 		/// </summary>
@@ -260,13 +260,13 @@ namespace Mono.Debugging.Client
 			if (store != null)
 				store.NotifyBreakEventChanged (this);
 		}
-
+		
 		internal void NotifyUpdate ()
 		{
 			if (store != null)
 				store.NotifyBreakEventUpdated (this);
 		}
-
+		
 		/// <summary>
 		/// Clone this instance.
 		/// </summary>
@@ -274,7 +274,7 @@ namespace Mono.Debugging.Client
 		{
 			return (BreakEvent) MemberwiseClone ();
 		}
-
+		
 		/// <summary>
 		/// Makes a copy of this instance
 		/// </summary>

@@ -1,21 +1,21 @@
-//
+// 
 // RemoteRawValue.cs
-//
+//  
 // Author:
 //       Lluis Sanchez Gual <lluis@novell.com>
-//
+// 
 // Copyright (c) 2010 Novell, Inc (http://www.novell.com)
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,7 +36,7 @@ namespace Mono.Debugging.Evaluation
 		object targetObject;
 		EvaluationContext ctx;
 		IObjectSource source;
-
+		
 		public RemoteRawValue (EvaluationContext gctx, IObjectSource source, object targetObject)
 		{
 			this.ctx = gctx.Clone ();
@@ -47,16 +47,16 @@ namespace Mono.Debugging.Evaluation
 			this.source = source;
 			Connect ();
 		}
-
+		
 		public object TargetObject {
 			get { return this.targetObject; }
 		}
-
+		
 		#region IRawValue implementation
 		public object CallMethod (string name, object[] parameters, EvaluationOptions options)
 		{
 			EvaluationContext localContext = ctx.WithOptions (options);
-
+			
 			object[] argValues = new object [parameters.Length];
 			object[] argTypes = new object [parameters.Length];
 			for (int n=0; n<argValues.Length; n++) {
@@ -67,7 +67,7 @@ namespace Mono.Debugging.Evaluation
 			object res = localContext.Adapter.RuntimeInvoke (localContext, type, targetObject, name, argTypes, argValues);
 			return localContext.Adapter.ToRawValue (localContext, null, res);
 		}
-
+		
 		public object GetMemberValue (string name, EvaluationOptions options)
 		{
 			EvaluationContext localContext = ctx.WithOptions (options);
@@ -77,7 +77,7 @@ namespace Mono.Debugging.Evaluation
 				throw new EvaluatorException ("Member '{0}' not found", name);
 			return localContext.Adapter.ToRawValue (localContext, val, val.Value);
 		}
-
+		
 		public void SetMemberValue (string name, object value, EvaluationOptions options)
 		{
 			EvaluationContext localContext = ctx.WithOptions (options);
@@ -87,17 +87,17 @@ namespace Mono.Debugging.Evaluation
 				throw new EvaluatorException ("Member '{0}' not found", name);
 			val.Value = localContext.Adapter.FromRawValue (localContext, value);
 		}
-
+		
 		#endregion
 	}
-
+	
 	internal class RemoteRawValueArray: RemoteFrameObject, IRawValueArray
 	{
 		object targetObject;
 		EvaluationContext ctx;
 		IObjectSource source;
 		ICollectionAdaptor targetArray;
-
+		
 		public RemoteRawValueArray (EvaluationContext ctx, IObjectSource source, ICollectionAdaptor targetArray, object targetObject)
 		{
 			this.ctx = ctx;
@@ -106,27 +106,27 @@ namespace Mono.Debugging.Evaluation
 			this.source = source;
 			Connect ();
 		}
-
+		
 		public object TargetObject {
 			get { return this.targetObject; }
 		}
-
+		
 		public object GetValue (int[] index)
 		{
 			return ctx.Adapter.ToRawValue (ctx, source, targetArray.GetElement (index));
 		}
-
+		
 		public void SetValue (int[] index, object value)
 		{
 			targetArray.SetElement (index, ctx.Adapter.FromRawValue (ctx, value));
 		}
-
+		
 		public int[] Dimensions {
 			get {
 				return targetArray.GetDimensions ();
 			}
 		}
-
+		
 		public Array ToArray ()
 		{
 			ArrayList array = new ArrayList ();
@@ -150,31 +150,31 @@ namespace Mono.Debugging.Evaluation
 				return array.ToArray ();
 		}
 	}
-
+	
 	internal class RemoteRawValueString: RemoteFrameObject, IRawValueString
 	{
 		object targetObject;
 		IStringAdaptor targetString;
-
+		
 		public RemoteRawValueString (IStringAdaptor targetString, object targetObject)
 		{
 			this.targetString = targetString;
 			this.targetObject = targetObject;
 			Connect ();
 		}
-
+		
 		public object TargetObject {
 			get { return this.targetObject; }
 		}
-
+		
 		public int Length {
 			get { return targetString.Length; }
 		}
-
+		
 		public string Value {
 			get { return targetString.Value; }
 		}
-
+		
 		public string Substring (int index, int length)
 		{
 			return targetString.Substring (index, length);

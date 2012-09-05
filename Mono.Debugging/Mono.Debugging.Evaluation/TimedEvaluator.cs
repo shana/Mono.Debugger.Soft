@@ -43,7 +43,7 @@ namespace Mono.Debugging.Evaluation
 		bool mainThreadBusy;
 		bool useTimeout;
 		bool disposed;
-
+		
 		public TimedEvaluator (): this (true)
 		{
 		}
@@ -63,19 +63,19 @@ namespace Mono.Debugging.Evaluation
 				}
 			}
 		}
-
+		
 		void OnStartEval ()
 		{
 //			Console.WriteLine ("Eval Started");
 		}
-
+		
 		void OnEndEval ()
 		{
 //			lock (runningLock) {
 //				Console.WriteLine ("Eval Finished ({0} pending)", pendingTasks.Count);
 //			}
 		}
-
+		
 		/// <summary>
 		/// Executes the provided evaluator. If a result is obtained before RunTimeout milliseconds,
 		/// the method ends returning True.
@@ -89,11 +89,11 @@ namespace Mono.Debugging.Evaluation
 				SafeRun (evaluator);
 				return true;
 			}
-
+			
 			Task task = new Task ();
 			task.Evaluator = evaluator;
 			task.FinishedCallback = delayedDoneCallback;
-
+			
 			lock (runningLock) {
 				if (disposed)
 					return false;
@@ -115,11 +115,11 @@ namespace Mono.Debugging.Evaluation
 				mainThreadBusy = true;
 				currentTask = task;
 			}
-
+			
 			OnStartEval ();
 			newTaskEvent.Set ();
 			task.RunningEvent.WaitOne ();
-
+			
 			lock (task) {
 				if (!task.RunFinishedEvent.WaitOne (RunTimeout, false)) {
 					task.TimedOut = true;
@@ -137,12 +137,12 @@ namespace Mono.Debugging.Evaluation
 		void Runner ()
 		{
 			Task threadTask = null;
-
+			
 			while (!disposed) {
 
 				if (threadTask == null) {
 					newTaskEvent.WaitOne ();
-
+					
 					lock (runningLock) {
 						if (disposed) {
 							runningThreads--;
@@ -152,14 +152,14 @@ namespace Mono.Debugging.Evaluation
 						currentTask = null;
 					}
 				}
-
+				
 				threadTask.RunningEvent.Set ();
 				SafeRun (threadTask.Evaluator);
 				threadTask.RunFinishedEvent.Set ();
 
 				Task curTask = threadTask;
 				threadTask = null;
-
+				
 				OnEndEval ();
 
 				lock (runningLock) {
@@ -168,17 +168,17 @@ namespace Mono.Debugging.Evaluation
 						return;
 					}
 				}
-
+				
 				lock (curTask) {
 					if (!curTask.TimedOut)
 						continue; // Done. Keep waiting for more tasks.
-
+					
 					SafeRun (curTask.FinishedCallback);
 				}
 
 				// The task timed out, so more threads may already have
 				// been created while this one was busy.
-
+				
 				lock (runningLock) {
 					Monitor.PulseAll (runningLock);
 					if (pendingTasks.Count > 0) {
@@ -200,7 +200,7 @@ namespace Mono.Debugging.Evaluation
 				}
 			}
 		}
-
+		
 		public void Dispose ()
 		{
 			lock (runningLock) {
@@ -239,7 +239,7 @@ namespace Mono.Debugging.Evaluation
 			} catch {
 			}
 		}
-
+		
 		class Task
 		{
 			public AutoResetEvent RunningEvent = new AutoResetEvent (false);

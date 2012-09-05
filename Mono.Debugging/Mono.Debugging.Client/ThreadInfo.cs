@@ -37,15 +37,15 @@ namespace Mono.Debugging.Client
 		long processId;
 		string location;
 		Backtrace backtrace;
-
+		
 		[NonSerialized]
 		DebuggerSession session;
-
+		
 		internal void Attach (DebuggerSession session)
 		{
 			this.session = session;
 		}
-
+		
 		public long Id {
 			get {
 				return id;
@@ -57,7 +57,7 @@ namespace Mono.Debugging.Client
 				return name;
 			}
 		}
-
+		
 		public string Location {
 			get {
 				if (location == null) {
@@ -68,7 +68,7 @@ namespace Mono.Debugging.Client
 				return location;
 			}
 		}
-
+		
 		internal long ProcessId {
 			get { return processId; }
 		}
@@ -80,16 +80,16 @@ namespace Mono.Debugging.Client
 				return backtrace;
 			}
 		}
-
+		
 		public void SetActive ()
 		{
 			session.ActiveThread = this;
 		}
-
+		
 		public ThreadInfo (long processId, long id, string name, string location): this (processId, id, name, location, null)
 		{
 		}
-
+		
 		public ThreadInfo (long processId, long id, string name, string location, Backtrace backtrace)
 		{
 			this.id = id;
@@ -98,7 +98,7 @@ namespace Mono.Debugging.Client
 			this.location = location;
 			this.backtrace = backtrace;
 		}
-
+		
 		public override bool Equals (object obj)
 		{
 			ThreadInfo ot = obj as ThreadInfo;
@@ -106,14 +106,14 @@ namespace Mono.Debugging.Client
 				return false;
 			return id == ot.id && processId == ot.processId;
 		}
-
+		
 		public override int GetHashCode ()
 		{
 			unchecked {
 				return (int) (id + processId*1000);
 			}
 		}
-
+		
 		public static bool operator == (ThreadInfo t1, ThreadInfo t2)
 		{
 			if (object.ReferenceEquals (t1, t2))
@@ -122,7 +122,7 @@ namespace Mono.Debugging.Client
 				return false;
 			return t1.Equals (t2);
 		}
-
+		
 		public static bool operator != (ThreadInfo t1, ThreadInfo t2)
 		{
 			if (object.ReferenceEquals (t1, t2))

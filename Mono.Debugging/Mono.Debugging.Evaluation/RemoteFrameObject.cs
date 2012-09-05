@@ -37,7 +37,7 @@ namespace Mono.Debugging.Evaluation
 		public static bool TrackConnections { get; set; }
 
 		bool connected;
-
+		
 		public void Connect ()
 		{
 			if (!TrackConnections)
@@ -46,7 +46,7 @@ namespace Mono.Debugging.Evaluation
 			// Registers the value reference. Once a remote reference of this object
 			// is created, it will never be released, until DisconnectAll is called,
 			// which is done every time the current backtrace changes
-
+			
 			lock (connectedValues) {
 				if (!connected) {
 					connectedValues.Add (this);
@@ -54,7 +54,7 @@ namespace Mono.Debugging.Evaluation
 				}
 			}
 		}
-
+		
 		public static void DisconnectAll ()
 		{
 			lock (connectedValues) {
@@ -67,7 +67,7 @@ namespace Mono.Debugging.Evaluation
 				connectedValues.Clear ();
 			}
 		}
-
+		
 		public override object InitializeLifetimeService ()
 		{
 			return null;

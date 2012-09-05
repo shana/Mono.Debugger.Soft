@@ -35,7 +35,7 @@ namespace Mono.Debugging.Client
 	{
 		int expressionLenght;
 		List<CompletionItem> items = new List<CompletionItem> ();
-
+		
 		public int ExpressionLenght {
 			get {
 				return expressionLenght;
@@ -44,30 +44,30 @@ namespace Mono.Debugging.Client
 				expressionLenght = value;
 			}
 		}
-
+		
 		public List<CompletionItem> Items {
 			get { return items; }
 		}
 	}
-
+	
 	[Serializable]
 	public class CompletionItem
 	{
 		string name;
 		ObjectValueFlags flags;
-
+		
 		public CompletionItem (string name, ObjectValueFlags flags)
 		{
 			this.name = name;
 			this.flags = flags;
 		}
-
+		
 		public string Name {
 			get {
 				return name;
 			}
 		}
-
+		
 		public ObjectValueFlags Flags {
 			get {
 				return flags;

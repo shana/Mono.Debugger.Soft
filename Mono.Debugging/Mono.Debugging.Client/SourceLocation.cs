@@ -22,7 +22,7 @@ namespace Mono.Debugging.Client
 			this.Line = line;
 			this.Column = column;
 		}
-
+		
 		public override string ToString ()
 		{
 			return string.Format("[SourceLocation Method={0}, Filename={1}, Line={2}, Column={3}]", MethodName, FileName, Line, Column);

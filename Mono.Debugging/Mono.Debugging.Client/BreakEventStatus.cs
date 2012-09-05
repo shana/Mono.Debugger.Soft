@@ -1,21 +1,21 @@
-//
+// 
 // BreakEventStatus.cs
-//
+//  
 // Author:
 //       Lluis Sanchez Gual <lluis@novell.com>
-//
+// 
 // Copyright (c) 2011 Novell, Inc (http://www.novell.com)
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,22 +33,22 @@ namespace Mono.Debugging.Client
 		/// The breakpoint is not connected to any debug session
 		/// </summary>
 		Disconnected = 1,
-
+		
 		/// <summary>
 		/// The breakpoint is not yet bound to a valid location
 		/// </summary>
 		NotBound = 2,
-
+		
 		/// <summary>
-		/// The breakpoint is bound
+		/// The breakpoint is bound 
 		/// </summary>
 		Bound = 3,
-
+		
 		/// <summary>
 		/// The breakpoint could not be bound because the breakpoint location is invalid
 		/// </summary>
 		Invalid = 4,
-
+		
 		/// <summary>
 		/// There was a debugger error while binding the breakpoint
 		/// </summary>

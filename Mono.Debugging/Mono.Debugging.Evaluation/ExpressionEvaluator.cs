@@ -39,7 +39,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			return Evaluate (ctx, exp, null);
 		}
-
+		
 		public virtual ValueReference Evaluate (EvaluationContext ctx, string exp, object expectedType)
 		{
 			foreach (ValueReference var in ctx.Adapter.GetLocalVariables (ctx))
@@ -60,7 +60,7 @@ namespace Mono.Debugging.Evaluation
 			}
 			throw new EvaluatorException ("Invalid Expression: '{0}'", exp);
 		}
-
+		
 		public virtual ValidationResult ValidateExpression (EvaluationContext ctx, string expression)
 		{
 			return new ValidationResult (true, null);
@@ -71,7 +71,7 @@ namespace Mono.Debugging.Evaluation
 			object res = ctx.Adapter.TargetObjectToObject (ctx, obj);
 			if (res == null)
 				return null;
-
+			
 			if (res is EvaluationResult)
 				return ((EvaluationResult) res).DisplayValue;
 			else
@@ -82,7 +82,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			return ToExpression (ctx, ctx.Adapter.TargetObjectToObject (ctx, obj));
 		}
-
+		
 		public virtual EvaluationResult ToExpression (EvaluationContext ctx, object obj)
 		{
 			if (obj == null)
@@ -109,7 +109,7 @@ namespace Mono.Debugging.Evaluation
 				return new EvaluationResult (((decimal)obj).ToString (System.Globalization.CultureInfo.InvariantCulture));
 			else if (obj is EvaluationResult)
 				return (EvaluationResult) obj;
-
+			
 			if (ctx.Options.IntegerDisplayFormat == IntegerDisplayFormat.Hexadecimal) {
 				string fval = null;
 				if (obj is sbyte)
@@ -128,11 +128,11 @@ namespace Mono.Debugging.Evaluation
 					fval = ((ushort)obj).ToString ("x8");
 				else if (obj is ulong)
 					fval = ((ulong)obj).ToString ("x16");
-
+				
 				if (fval != null)
 					return new EvaluationResult ("0x" + fval);
 			}
-
+			
 			return new EvaluationResult (obj.ToString ());
 		}
 
@@ -161,14 +161,14 @@ namespace Mono.Debugging.Evaluation
 			}
 			return sb.ToString ();
 		}
-
+		
 		public virtual bool CaseSensitive {
 			get { return true; }
 		}
 
 		public abstract string Resolve (DebuggerSession session, SourceLocation location, string exp);
 	}
-
+	
 	[Serializable]
 	public class EvaluatorException: Exception
 	{
@@ -176,7 +176,7 @@ namespace Mono.Debugging.Evaluation
 			: base (info, context)
 		{
 		}
-
+		
 		public EvaluatorException (string msg, params object[] args): base (string.Format (msg, args))
 		{
 		}
@@ -189,7 +189,7 @@ namespace Mono.Debugging.Evaluation
 			: base (info, context)
 		{
 		}
-
+		
 		public NotSupportedExpressionException ( )
 			: base ("Expression not supported.")
 		{
@@ -203,7 +203,7 @@ namespace Mono.Debugging.Evaluation
 			: base (info, context)
 		{
 		}
-
+		
 		public ImplicitEvaluationDisabledException ( )
 			: base ("Implicit property and method evaluation is disabled.")
 		{

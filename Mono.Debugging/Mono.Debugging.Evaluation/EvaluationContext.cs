@@ -37,16 +37,16 @@ namespace Mono.Debugging.Evaluation
 
 		public ExpressionEvaluator Evaluator { get; set; }
 		public ObjectValueAdaptor Adapter { get; set; }
-
+		
 		public EvaluationOptions Options {
 			get { return options; }
 			set { options = value; }
 		}
-
+		
 		public bool CaseSensitive {
 			get { return Evaluator.CaseSensitive; }
 		}
-
+		
 		public virtual void WriteDebuggerError (Exception ex)
 		{
 		}
@@ -58,13 +58,13 @@ namespace Mono.Debugging.Evaluation
 		public void WaitRuntimeInvokes ()
 		{
 		}
-
+		
 		public void AssertTargetInvokeAllowed ()
 		{
 			if (!Options.AllowTargetInvoke)
 				throw new ImplicitEvaluationDisabledException ();
 		}
-
+		
 		public EvaluationContext (EvaluationOptions options)
 		{
 			this.options = options;
@@ -94,7 +94,7 @@ namespace Mono.Debugging.Evaluation
 			Evaluator = ctx.Evaluator;
 			Adapter = ctx.Adapter;
 		}
-
+		
 		ExpressionValueSource expressionValueSource;
 		internal ExpressionValueSource ExpressionValueSource {
 			get {
@@ -104,11 +104,11 @@ namespace Mono.Debugging.Evaluation
 			}
 		}
 	}
-
+	
 	class ExpressionValueSource: RemoteFrameObject, IObjectValueSource
 	{
 		EvaluationContext ctx;
-
+		
 		public ExpressionValueSource (EvaluationContext ctx)
 		{
 			this.ctx = ctx;
@@ -119,29 +119,29 @@ namespace Mono.Debugging.Evaluation
 		{
 			return false;
 		}
-
+		
 		public ObjectValue[] GetChildren (ObjectPath path, int index, int count, EvaluationOptions options)
 		{
 			throw new System.NotImplementedException();
 		}
-
+		
 		public EvaluationResult SetValue (ObjectPath path, string value, EvaluationOptions options)
 		{
 			throw new System.NotImplementedException();
 		}
-
+		
 		public ObjectValue GetValue (ObjectPath path, EvaluationOptions options)
 		{
 			EvaluationContext c = ctx.WithOptions (options);
 			ObjectValue[] vals = c.Adapter.GetExpressionValuesAsync (c, new string[] { path.LastName });
 			return vals[0];
 		}
-
+		
 		public object GetRawValue (ObjectPath path, EvaluationOptions options)
 		{
 			throw new System.NotImplementedException ();
 		}
-
+		
 		public void SetRawValue (ObjectPath path, object value, EvaluationOptions options)
 		{
 			throw new System.NotImplementedException ();

@@ -34,12 +34,12 @@ namespace Mono.Debugging.Client
 	public class Catchpoint: BreakEvent
 	{
 		string exceptionName;
-
+		
 		public Catchpoint (string exceptionName)
 		{
 			this.exceptionName = exceptionName;
 		}
-
+		
 		internal Catchpoint (XmlElement elem): base (elem)
 		{
 			exceptionName = elem.GetAttribute ("exceptionName");
@@ -52,13 +52,13 @@ namespace Mono.Debugging.Client
 			return elem;
 		}
 
-
+		
 		public string ExceptionName {
 			get {
 				return exceptionName;
 			}
 		}
-
+		
 		public override void CopyFrom (BreakEvent ev)
 		{
 			base.CopyFrom (ev);

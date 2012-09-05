@@ -2,7 +2,7 @@
 //
 // Authors: Lluis Sanchez Gual <lluis@novell.com>
 //          Jeffrey Stedfast <jeff@xamarin.com>
-//
+// 
 // Copyright (c) 2008 Novell, Inc (http://www.novell.com)
 // Copyright (c) 2012 Xamarin Inc. (http://www.xamarin.com)
 //
@@ -53,13 +53,13 @@ namespace Mono.Debugging.Client
 
 		[NonSerialized]
 		UpdateCallback updateCallback;
-
+		
 		[NonSerialized]
 		EventHandler valueChanged;
-
+		
 		[NonSerialized]
 		StackFrame parentFrame;
-
+		
 		static ObjectValue Create (IObjectValueSource source, ObjectPath path, string typeName)
 		{
 			ObjectValue ob = new ObjectValue ();
@@ -68,12 +68,12 @@ namespace Mono.Debugging.Client
 			ob.typeName = typeName;
 			return ob;
 		}
-
+		
 		public static ObjectValue CreateObject (IObjectValueSource source, ObjectPath path, string typeName, string value, ObjectValueFlags flags, ObjectValue[] children)
 		{
 			return CreateObject (source, path, typeName, new EvaluationResult (value), flags, children);
 		}
-
+		
 		public static ObjectValue CreateObject (IObjectValueSource source, ObjectPath path, string typeName, EvaluationResult value, ObjectValueFlags flags, ObjectValue[] children)
 		{
 			ObjectValue ob = Create (source, path, typeName);
@@ -87,12 +87,12 @@ namespace Mono.Debugging.Client
 			}
 			return ob;
 		}
-
+		
 		public static ObjectValue CreateNullObject (IObjectValueSource source, string name, string typeName, ObjectValueFlags flags)
 		{
 			return CreateNullObject (source, new ObjectPath (name), typeName, flags);
 		}
-
+		
 		public static ObjectValue CreateNullObject (IObjectValueSource source, ObjectPath path, string typeName, ObjectValueFlags flags)
 		{
 			ObjectValue ob = Create (source, path, typeName);
@@ -101,7 +101,7 @@ namespace Mono.Debugging.Client
 			ob.isNull = true;
 			return ob;
 		}
-
+		
 		public static ObjectValue CreatePrimitive (IObjectValueSource source, ObjectPath path, string typeName, EvaluationResult value, ObjectValueFlags flags)
 		{
 			ObjectValue ob = Create (source, path, typeName);
@@ -110,7 +110,7 @@ namespace Mono.Debugging.Client
 			ob.displayValue = value.DisplayValue;
 			return ob;
 		}
-
+		
 		public static ObjectValue CreateArray (IObjectValueSource source, ObjectPath path, string typeName, int arrayCount, ObjectValueFlags flags, ObjectValue[] children)
 		{
 			ObjectValue ob = Create (source, path, typeName);
@@ -123,19 +123,19 @@ namespace Mono.Debugging.Client
 			}
 			return ob;
 		}
-
+		
 		public static ObjectValue CreateUnknown (IObjectValueSource source, ObjectPath path, string typeName)
 		{
 			ObjectValue ob = Create (source, path, typeName);
 			ob.flags = ObjectValueFlags.Unknown | ObjectValueFlags.ReadOnly;
 			return ob;
 		}
-
+		
 		public static ObjectValue CreateUnknown (string name)
 		{
 			return CreateUnknown (null, new ObjectPath (name), "");
 		}
-
+		
 		public static ObjectValue CreateError (IObjectValueSource source, ObjectPath path, string typeName, string value, ObjectValueFlags flags)
 		{
 			ObjectValue ob = Create (source, path, typeName);
@@ -143,12 +143,12 @@ namespace Mono.Debugging.Client
 			ob.value = value;
 			return ob;
 		}
-
+		
 		public static ObjectValue CreateImplicitNotSupported (IObjectValueSource source, ObjectPath path, string typeName, ObjectValueFlags flags)
 		{
 			return CreateNotSupported (source, path, typeName, "Implicit evaluation is disabled", flags);
 		}
-
+		
 		public static ObjectValue CreateNotSupported (IObjectValueSource source, ObjectPath path, string typeName, string message, ObjectValueFlags flags)
 		{
 			ObjectValue ob = Create (source, path, typeName);
@@ -156,7 +156,7 @@ namespace Mono.Debugging.Client
 			ob.value = message;
 			return ob;
 		}
-
+		
 		public static ObjectValue CreateFatalError (string name, string message, ObjectValueFlags flags)
 		{
 			ObjectValue ob = new ObjectValue ();
@@ -165,7 +165,7 @@ namespace Mono.Debugging.Client
 			ob.name = name;
 			return ob;
 		}
-
+		
 		public static ObjectValue CreateEvaluating (IObjectValueUpdater updater, ObjectPath path, ObjectValueFlags flags)
 		{
 			ObjectValue ob = Create (null, path, null);
@@ -174,7 +174,7 @@ namespace Mono.Debugging.Client
 			ob.flags = flags | ObjectValueFlags.Evaluating;
 			return ob;
 		}
-
+		
 		/// <summary>
 		/// Gets the flags of the value
 		/// </summary>
@@ -246,7 +246,7 @@ namespace Mono.Debugging.Client
 			get { return displayValue ?? Value; }
 			set { displayValue = value; }
 		}
-
+		
 		/// <summary>
 		/// Sets the value of this object, using the default evaluation options
 		/// </summary>
@@ -254,7 +254,7 @@ namespace Mono.Debugging.Client
 		{
 			SetValue (value, parentFrame.DebuggerSession.EvaluationOptions);
 		}
-
+		
 		/// <summary>
 		/// Sets the value of this object, using the specified evaluation options
 		/// </summary>
@@ -277,7 +277,7 @@ namespace Mono.Debugging.Client
 				displayValue = res.DisplayValue;
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets the raw value of this object
 		/// </summary>
@@ -295,10 +295,10 @@ namespace Mono.Debugging.Client
 		{
 			EvaluationOptions ops = parentFrame.DebuggerSession.EvaluationOptions.Clone ();
 			ops.EllipsizeStrings = false;
-
+			
 			return GetRawValue (ops);
 		}
-
+		
 		/// <summary>
 		/// Gets the raw value of this object
 		/// </summary>
@@ -323,7 +323,7 @@ namespace Mono.Debugging.Client
 				val.options = options;
 			return res;
 		}
-
+		
 		/// <summary>
 		/// Sets the raw value of this object
 		/// </summary>
@@ -337,7 +337,7 @@ namespace Mono.Debugging.Client
 		{
 			SetRawValue (value, parentFrame.DebuggerSession.EvaluationOptions);
 		}
-
+		
 		/// <summary>
 		/// Sets the raw value of this object
 		/// </summary>
@@ -354,7 +354,7 @@ namespace Mono.Debugging.Client
 		{
 			source.SetRawValue (path, value, options);
 		}
-
+		
 		/// <summary>
 		/// Full name of the type of the object
 		/// </summary>
@@ -362,7 +362,7 @@ namespace Mono.Debugging.Client
 			get { return typeName; }
 			set { typeName = value; }
 		}
-
+		
 		/// <summary>
 		/// Gets or sets the child selector.
 		/// </summary>
@@ -382,7 +382,7 @@ namespace Mono.Debugging.Client
 			}
 			set { childSelector = value; }
 		}
-
+		
 		/// <summary>
 		/// Gets a value indicating whether this object has children.
 		/// </summary>
@@ -424,7 +424,7 @@ namespace Mono.Debugging.Client
 		{
 			return GetChild (name, parentFrame.DebuggerSession.EvaluationOptions);
 		}
-
+		
 		/// <summary>
 		/// Gets a child value
 		/// </summary>
@@ -446,7 +446,7 @@ namespace Mono.Debugging.Client
 				throw new InvalidOperationException ("Object is an array.");
 			if (IsEvaluating)
 				return null;
-
+			
 			if (children == null) {
 				children = new List<ObjectValue> ();
 				if (source != null) {
@@ -460,15 +460,15 @@ namespace Mono.Debugging.Client
 					}
 				}
 			}
-
+			
 			foreach (ObjectValue ob in children) {
 				if (ob.Name == name)
 					return ob;
 			}
-
+			
 			return null;
 		}
-
+		
 		/// <summary>
 		/// Gets all children of the object
 		/// </summary>
@@ -479,7 +479,7 @@ namespace Mono.Debugging.Client
 		{
 			return GetAllChildren (parentFrame.DebuggerSession.EvaluationOptions);
 		}
-
+		
 		/// <summary>
 		/// Gets all children of the object
 		/// </summary>
@@ -493,7 +493,7 @@ namespace Mono.Debugging.Client
 		{
 			if (IsEvaluating)
 				return new ObjectValue[0];
-
+			
 			if (IsArray) {
 				GetArrayItem (arrayCount - 1);
 				return children.ToArray ();
@@ -515,7 +515,7 @@ namespace Mono.Debugging.Client
 				return children.ToArray ();
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets an item of an array
 		/// </summary>
@@ -532,7 +532,7 @@ namespace Mono.Debugging.Client
 		{
 			return GetArrayItem (index, parentFrame.DebuggerSession.EvaluationOptions);
 		}
-
+		
 		/// <summary>
 		/// Gets an item of an array
 		/// </summary>
@@ -554,7 +554,7 @@ namespace Mono.Debugging.Client
 				throw new InvalidOperationException ("Object is not an array.");
 			if (index >= arrayCount || index < 0 || IsEvaluating)
 				throw new IndexOutOfRangeException ();
-
+			
 			if (children == null)
 				children = new List<ObjectValue> ();
 			if (index >= children.Count) {
@@ -571,7 +571,7 @@ namespace Mono.Debugging.Client
 			}
 			return children [index];
 		}
-
+		
 		/// <summary>
 		/// Gets the number of items of an array
 		/// </summary>
@@ -584,50 +584,50 @@ namespace Mono.Debugging.Client
 					throw new InvalidOperationException ("Object is not an array.");
 				if (IsEvaluating)
 					return 0;
-				return arrayCount;
+				return arrayCount; 
 			}
 		}
 
 		public bool IsReadOnly {
 			get { return HasFlag (ObjectValueFlags.ReadOnly); }
 		}
-
+		
 		public bool IsArray {
 			get { return HasFlag (ObjectValueFlags.Array); }
 		}
-
+		
 		public bool IsObject {
 			get { return HasFlag (ObjectValueFlags.Object); }
 		}
-
+		
 		public bool IsPrimitive {
 			get { return HasFlag (ObjectValueFlags.Primitive); }
 		}
-
+		
 		public bool IsUnknown {
 			get { return HasFlag (ObjectValueFlags.Unknown); }
 		}
-
+		
 		public bool IsNotSupported {
 			get { return HasFlag (ObjectValueFlags.NotSupported); }
 		}
-
+		
 		public bool IsError {
 			get { return HasFlag (ObjectValueFlags.Error); }
 		}
-
+		
 		public bool IsEvaluating {
 			get { return HasFlag (ObjectValueFlags.Evaluating); }
 		}
-
+		
 		public bool IsEvaluatingGroup {
 			get { return HasFlag (ObjectValueFlags.EvaluatingGroup); }
 		}
-
+		
 		public bool CanRefresh {
 			get { return source != null && !HasFlag (ObjectValueFlags.NoRefresh); }
 		}
-
+		
 		public bool HasFlag (ObjectValueFlags flag)
 		{
 			return (flags & flag) != 0;
@@ -648,7 +648,7 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
+		
 		/// <summary>
 		/// Refreshes the value of this object
 		/// </summary>
@@ -659,7 +659,7 @@ namespace Mono.Debugging.Client
 		{
 			Refresh (parentFrame.DebuggerSession.EvaluationOptions);
 		}
-
+		
 		/// <summary>
 		/// Refreshes the value of this object
 		/// </summary>
@@ -731,7 +731,7 @@ namespace Mono.Debugging.Client
 			if (updateCallback != null)
 				System.Runtime.Remoting.RemotingServices.Disconnect ((UpdateCallbackProxy)updateCallback.Callback);
 		}
-
+		
 		internal static void ConnectCallbacks (StackFrame parentFrame, params ObjectValue[] values)
 		{
 			Dictionary<IObjectValueUpdater, List<UpdateCallback>> callbacks = null;
@@ -767,14 +767,14 @@ namespace Mono.Debugging.Client
 	class UpdateCallbackProxy: MarshalByRefObject, IObjectValueUpdateCallback
 	{
 		WeakReference valRef;
-
+		
 		public void UpdateValue (ObjectValue newValue)
 		{
 			ObjectValue val = valRef.Target as ObjectValue;
 			if (val != null)
 				val.UpdateFrom (newValue, true);
 		}
-
+		
 		public UpdateCallbackProxy (ObjectValue val)
 		{
 			valRef = new WeakReference (val);

@@ -64,7 +64,7 @@ namespace Mono.Debugging.Evaluation
 			val.objCreated = true;
 			return val;
 		}
-
+		
 		public static LiteralValueReference CreateObjectLiteral (EvaluationContext ctx, string name, object value)
 		{
 			LiteralValueReference val = new LiteralValueReference (ctx);
@@ -73,7 +73,7 @@ namespace Mono.Debugging.Evaluation
 			val.objLiteral = true;
 			return val;
 		}
-
+		
 		public static LiteralValueReference CreateVoidReturnLiteral (EvaluationContext ctx, string name)
 		{
 			LiteralValueReference val = new LiteralValueReference (ctx);
@@ -84,7 +84,7 @@ namespace Mono.Debugging.Evaluation
 			val.objCreated = true;
 			return val;
 		}
-
+		
 		void EnsureValueAndType ()
 		{
 			if (!objCreated && objLiteral) {
@@ -93,7 +93,7 @@ namespace Mono.Debugging.Evaluation
 				objCreated = true;
 			}
 		}
-
+		
 		public override object ObjectValue {
 			get {
 				if (objLiteral)
@@ -112,20 +112,20 @@ namespace Mono.Debugging.Evaluation
 				throw new NotSupportedException ();
 			}
 		}
-
+		
 		public override string Name {
 			get {
 				return name;
 			}
 		}
-
+		
 		public override object Type {
 			get {
 				EnsureValueAndType ();
 				return type;
 			}
 		}
-
+		
 		public override ObjectValueFlags Flags {
 			get {
 				return ObjectValueFlags.Field | ObjectValueFlags.ReadOnly;

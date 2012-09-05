@@ -37,7 +37,7 @@ namespace Mono.Debugging.Client
 		string arguments;
 		string workingDirectory;
 		Dictionary<string, string> environmentVariables;
-
+		
 		public string Command {
 			get {
 				return command;
@@ -72,9 +72,9 @@ namespace Mono.Debugging.Client
 				return environmentVariables;
 			}
 		}
-
+		
 		public bool UseExternalConsole { get; set; }
-
+		
 		public bool CloseExternalConsoleOnExit { get; set; }
 	}
 }

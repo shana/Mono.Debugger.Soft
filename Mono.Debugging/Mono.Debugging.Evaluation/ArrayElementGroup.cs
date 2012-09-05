@@ -2,7 +2,7 @@
 //
 // Authors: Lluis Sanchez Gual <lluis@novell.com>
 //          Jeffrey Stedfast <jeff@xamarin.com>
-//
+// 
 // Copyright (c) 2008 Novell, Inc (http://www.novell.com)
 // Copyright (c) 2012 Xamarin Inc. (http://www.xamarin.com)
 //
@@ -42,7 +42,7 @@ namespace Mono.Debugging.Evaluation
 		int lastIndex;
 		int[] bounds;
 		ICollectionAdaptor array;
-
+		
 		const int MaxChildCount = 150;
 
 		public ArrayElementGroup (EvaluationContext ctx, ICollectionAdaptor array)
@@ -64,11 +64,11 @@ namespace Mono.Debugging.Evaluation
 			this.firstIndex = firstIndex;
 			this.lastIndex = lastIndex;
 		}
-
+		
 		public bool IsRange {
 			get { return lastIndex != -1; }
 		}
-
+		
 		public ObjectValue CreateObjectValue ()
 		{
 			Connect ();
@@ -85,9 +85,9 @@ namespace Mono.Debugging.Evaluation
 			}
 			if (bounds.Length > 1 && baseIndices.Length < bounds.Length)
 				sb.Append (", ...");
-
+			
 			sb.Append ("]");
-
+			
 			ObjectValue res = ObjectValue.CreateObject (this, new ObjectPath (sb.ToString ()), "", "", ObjectValueFlags.ArrayElement|ObjectValueFlags.ReadOnly|ObjectValueFlags.NoRefresh, null);
 			res.ChildSelector = "";
 			return res;
@@ -116,7 +116,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			return GetChildren (new ObjectPath ("this"), -1, -1, options);
 		}
-
+		
 		public ObjectValue[] GetChildren (ObjectPath path, int firstItemIndex, int count, EvaluationOptions options)
 		{
 			EvaluationContext cctx = ctx.WithOptions (options);
@@ -126,11 +126,11 @@ namespace Mono.Debugging.Evaluation
 				object obj = array.GetElement (idx);
 				return cctx.Adapter.GetObjectValueChildren (cctx, new ArrayObjectSource (array, path[1]), obj, firstItemIndex, count);
 			}
-
+			
 			int lowerBound;
 			int upperBound;
 			bool isLastDimension;
-
+			
 			if (bounds.Length > 1) {
 				int rank = baseIndices.Length;
 				lowerBound = 0;
@@ -141,10 +141,10 @@ namespace Mono.Debugging.Evaluation
 				upperBound = bounds [0] - 1;
 				isLastDimension = true;
 			}
-
+			
 			int len;
 			int initalIndex;
-
+			
 			if (!IsRange) {
 				initalIndex = lowerBound;
 				len = upperBound + 1;
@@ -153,28 +153,28 @@ namespace Mono.Debugging.Evaluation
 				initalIndex = firstIndex;
 				len = lastIndex - firstIndex + 1;
 			}
-
+			
 			if (firstItemIndex == -1) {
 				firstItemIndex = 0;
 				count = len;
 			}
-
+			
 			// Make sure the group doesn't have too many elements. If so, divide
 			int div = 1;
 			while (len / div > MaxChildCount)
 				div *= 10;
-
+			
 			if (div == 1 && isLastDimension) {
 				// Return array elements
-
+				
 				ObjectValue[] values = new ObjectValue [count];
 				ObjectPath newPath = new ObjectPath ("this");
-
+				
 				int[] curIndex = new int [baseIndices.Length + 1];
 				Array.Copy (baseIndices, curIndex, baseIndices.Length);
 				string curIndexStr = IndicesToString (baseIndices);
 				if (baseIndices.Length > 0) curIndexStr += ",";
-
+				
 				for (int n=0; n < values.Length; n++) {
 					int index = n + initalIndex + firstItemIndex;
 					string sidx = curIndexStr + index.ToString ();
@@ -199,18 +199,18 @@ namespace Mono.Debugging.Evaluation
 			}
 			else if (!isLastDimension && div == 1) {
 				// Return an array element group for each index
-
+				
 				List<ObjectValue> list = new List<ObjectValue> ();
 				for (int i=0; i<count; i++) {
 					int index = i + initalIndex + firstItemIndex;
 					ObjectValue val;
-
+					
 					// This array must be created at every call to avoid sharing
 					// changes with all array groups
 					int[] curIndex = new int [baseIndices.Length + 1];
 					Array.Copy (baseIndices, curIndex, baseIndices.Length);
 					curIndex [curIndex.Length - 1] = index;
-
+					
 					if (index > upperBound)
 						val = ObjectValue.CreateUnknown ("");
 					else {
@@ -223,11 +223,11 @@ namespace Mono.Debugging.Evaluation
 			}
 			else {
 				// Too many elements. Split the array.
-
+				
 				// Don't make divisions of 10 elements, min is 100
 				if (div == 10)
 					div = 100;
-
+				
 				// Create the child groups
 				int i = initalIndex + firstItemIndex;
 				len += i;
@@ -243,7 +243,7 @@ namespace Mono.Debugging.Evaluation
 				return list.ToArray ();
 			}
 		}
-
+		
 		internal static string IndicesToString (int[] indices)
 		{
 			StringBuilder sb = new StringBuilder ();
@@ -254,7 +254,7 @@ namespace Mono.Debugging.Evaluation
 			}
 			return sb.ToString ();
 		}
-
+		
 		internal static int[] StringToIndices (string str)
 		{
 			string[] sidx = str.Split (',');
@@ -263,7 +263,7 @@ namespace Mono.Debugging.Evaluation
 				idx [n] = int.Parse (sidx [n]);
 			return idx;
 		}
-
+		
 		public static string GetArrayDescription (int[] bounds)
 		{
 			if (bounds.Length == 0)
@@ -278,14 +278,14 @@ namespace Mono.Debugging.Evaluation
 			sb.Append ("]");
 			return sb.ToString ();
 		}
-
+		
 		public EvaluationResult SetValue (ObjectPath path, string value, EvaluationOptions options)
 		{
 			if (path.Length != 2)
 				throw new NotSupportedException ();
-
+			
 			int[] idx = StringToIndices (path [1]);
-
+			
 			object val;
 			try {
 				EvaluationContext cctx = ctx.Clone ();
@@ -307,12 +307,12 @@ namespace Mono.Debugging.Evaluation
 				return new EvaluationResult ("? (" + ex.Message + ")");
 			}
 		}
-
+		
 		public ObjectValue GetValue (ObjectPath path, EvaluationOptions options)
 		{
 			if (path.Length != 2)
 				throw new NotSupportedException ();
-
+			
 			int[] idx = StringToIndices (path [1]);
 			object elem = array.GetElement (idx);
 			EvaluationContext cctx = ctx.WithOptions (options);
@@ -324,48 +324,48 @@ namespace Mono.Debugging.Evaluation
 			}
 			return val;
 		}
-
+		
 		public object GetRawValue (ObjectPath path, EvaluationOptions options)
 		{
 			if (path.Length != 2)
 				throw new NotSupportedException ();
-
+			
 			int[] idx = StringToIndices (path [1]);
 			object elem = array.GetElement (idx);
 			EvaluationContext cctx = ctx.WithOptions (options);
 			return cctx.Adapter.ToRawValue (cctx, new ArrayObjectSource (array, idx), elem);
 		}
-
+		
 		public void SetRawValue (ObjectPath path, object value, EvaluationOptions options)
 		{
 			if (path.Length != 2)
 				throw new NotSupportedException ();
-
+			
 			int[] idx = StringToIndices (path [1]);
-
+			
 			EvaluationContext cctx = ctx.WithOptions (options);
 			object val = cctx.Adapter.FromRawValue (cctx, value);
 			array.SetElement (idx, val);
 		}
 	}
-
+	
 	class ArrayObjectSource: IObjectSource
 	{
 		ICollectionAdaptor source;
 		string path;
-
+		
 		public ArrayObjectSource (ICollectionAdaptor source, string path)
 		{
 			this.source = source;
 			this.path = path;
 		}
-
+		
 		public ArrayObjectSource (ICollectionAdaptor source, int[] index)
 		{
 			this.source = source;
 			this.path = ArrayElementGroup.IndicesToString (index);
 		}
-
+		
 		public object Value {
 			get {
 				return source.GetElement (ArrayElementGroup.StringToIndices (path));

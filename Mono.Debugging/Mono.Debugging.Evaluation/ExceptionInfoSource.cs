@@ -1,21 +1,21 @@
-//
+// 
 // ExceptionInfoSource.cs
-//
+//  
 // Author:
 //       Lluis Sanchez Gual <lluis@novell.com>
-//
+// 
 // Copyright (c) 2010 Novell, Inc (http://www.novell.com)
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,28 +35,28 @@ namespace Mono.Debugging.Evaluation
 	{
 		ValueReference exception;
 		EvaluationContext ctx;
-
+		
 		public ExceptionInfoSource (EvaluationContext ctx, ValueReference exception)
 		{
 			this.exception = exception;
 			this.ctx = ctx;
 		}
-
+		
 		public ValueReference Exception {
 			get { return this.exception; }
 		}
-
+		
 		public ObjectValue CreateObjectValue (bool withTimeout, EvaluationOptions options)
 		{
 			string type = ctx.Adapter.GetTypeName (ctx, exception.Type);
-
+			
 			ObjectValue excInstance = exception.CreateObjectValue (withTimeout, options);
 			excInstance.Name = "Instance";
-
+			
 			ObjectValue messageValue = null;
-
+			
 			// Get the message
-
+			
 			if (withTimeout) {
 				messageValue = ctx.Adapter.CreateObjectValueAsync ("Message", ObjectValueFlags.None, delegate {
 					ValueReference mref = exception.GetChild ("Message", options);
@@ -76,13 +76,13 @@ namespace Mono.Debugging.Evaluation
 			}
 			if (messageValue == null)
 				messageValue = ObjectValue.CreateUnknown ("Message");
-
+			
 			messageValue.Name = "Message";
 
 			// Inner exception
-
+			
 			ObjectValue childExceptionValue = null;
-
+			
 			if (withTimeout) {
 				childExceptionValue = ctx.Adapter.CreateObjectValueAsync ("InnerException", ObjectValueFlags.None, delegate {
 					ValueReference inner = exception.GetChild ("InnerException", options);
@@ -106,9 +106,9 @@ namespace Mono.Debugging.Evaluation
 			}
 			if (childExceptionValue == null)
 				childExceptionValue = ObjectValue.CreateUnknown ("InnerException");
-
+			
 			// Stack trace
-
+			
 			ObjectValue stackTraceValue;
 			if (withTimeout) {
 				stackTraceValue = ctx.Adapter.CreateObjectValueAsync ("StackTrace", ObjectValueFlags.None, delegate {
@@ -116,11 +116,11 @@ namespace Mono.Debugging.Evaluation
 				});
 			} else
 				stackTraceValue = GetStackTrace (options);
-
+			
 			ObjectValue[] children = new ObjectValue [] { excInstance, messageValue, stackTraceValue, childExceptionValue };
 			return ObjectValue.CreateObject (null, new ObjectPath ("InnerException"), type, "", ObjectValueFlags.None, children);
 		}
-
+		
 		ObjectValue GetStackTrace (EvaluationOptions options)
 		{
 			ValueReference st = exception.GetChild ("StackTrace", options);
@@ -129,9 +129,9 @@ namespace Mono.Debugging.Evaluation
 			string trace = st.ObjectValue as string;
 			if (trace == null)
 				return ObjectValue.CreateUnknown ("StackTrace");
-
+			
 			List<ObjectValue> frames = new List<ObjectValue> ();
-
+			
 			foreach (string sframe in trace.Split ('\n')) {
 				string txt = sframe.Trim (' ', '\r','\n');
 				string file = "";
@@ -148,3 +148,4 @@ namespace Mono.Debugging.Evaluation
 		}
 	}
 }
+

@@ -34,24 +34,24 @@ namespace Mono.Debugging.Client
 	public struct ObjectPath
 	{
 		string[] path;
-
+		
 		public ObjectPath (params string[] path)
 		{
 			this.path = path;
 		}
-
+		
 		public string this [int n] {
 			get {
 				if (path == null)
 					throw new IndexOutOfRangeException ();
-				return path [n];
+				return path [n]; 
 			}
 		}
-
+		
 		public int Length {
 			get { return path != null ? path.Length : 0; }
 		}
-
+		
 		public IEnumerable GetEnumerator ()
 		{
 			if (path != null)
@@ -59,7 +59,7 @@ namespace Mono.Debugging.Client
 			else
 				return new string [0];
 		}
-
+		
 		public ObjectPath GetSubpath (int start)
 		{
 			if (start == 0)
@@ -70,7 +70,7 @@ namespace Mono.Debugging.Client
 				return new ObjectPath (newPath);
 			}
 		}
-
+		
 		public ObjectPath Append (string name)
 		{
 			string[] newPath = new string [path.Length + 1];
@@ -78,7 +78,7 @@ namespace Mono.Debugging.Client
 			newPath [path.Length] = name;
 			return new ObjectPath (newPath);
 		}
-
+		
 		public string LastName {
 			get {
 				if (Length == 0)
@@ -87,12 +87,12 @@ namespace Mono.Debugging.Client
 					return path [path.Length - 1];
 			}
 		}
-
+		
 		public string Join (string separator)
 		{
 			return string.Join (separator, path);
 		}
-
+		
 		public override string ToString ()
 		{
 			return Join ("/");

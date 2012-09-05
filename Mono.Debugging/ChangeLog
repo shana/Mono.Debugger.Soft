@@ -1,6 +1,6 @@
 2010-07-13  Levi Bard  <levi@unity3d.com>
 
-	* Mono.Debugging.Evaluation/ExpressionEvaluator.cs:
+	* Mono.Debugging.Evaluation/ExpressionEvaluator.cs: 
 	  Add method for unescaping strings.
 
 2010-05-20  Lluis Sanchez Gual  <lluis@novell.com>
@@ -90,8 +90,8 @@
 	* Mono.Debugging.Evaluation/ExpressionEvaluator.cs:
 	* Mono.Debugging.Evaluation/NRefactoryEvaluator.cs:
 	  Allow for custom expression evaluators.
-
-
+	
+	
 2010-04-19  Lluis Sanchez Gual  <lluis@novell.com>
 
 	* Makefile.am:

@@ -41,7 +41,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			this.type = type;
 		}
-
+	
 		public override object Value {
 			get {
 				if (!valueCreated) {
@@ -54,13 +54,13 @@ namespace Mono.Debugging.Evaluation
 				throw new NotSupportedException();
 			}
 		}
-
+		
 		public override object Type {
 			get {
 				return type;
 			}
 		}
-
+		
 		public override object ObjectValue {
 			get {
 				return null;
@@ -72,7 +72,7 @@ namespace Mono.Debugging.Evaluation
 				return "null";
 			}
 		}
-
+		
 		public override ObjectValueFlags Flags {
 			get {
 				return ObjectValueFlags.Literal;

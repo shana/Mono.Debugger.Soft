@@ -32,13 +32,13 @@ namespace Mono.Debugging.Client
 	public class ThreadEventArgs: EventArgs
 	{
 		int threadId;
-
+		
 		public int ThreadId {
 			get {
 				return threadId;
 			}
 		}
-
+		
 		public ThreadEventArgs (int threadId)
 		{
 			this.threadId = threadId;

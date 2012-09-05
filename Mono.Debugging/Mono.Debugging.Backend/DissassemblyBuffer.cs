@@ -36,46 +36,46 @@ namespace Mono.Debugging.Backend
 		List<AssemblyLine> lines = new List<AssemblyLine> ();
 		int baseIndex = 0;
 		long baseAddress;
-
+		
 		const int AddrPerLine = 4;
 		const int ExtraDownLines = 5;
 		const int ExtraUpLines = 20;
-
+		
 		public DissassemblyBuffer (long baseAddress)
 		{
 			this.baseAddress = baseAddress;
 		}
-
+		
 		public AssemblyLine[] GetLines (int firstIndex, int lastIndex)
 		{
 			//Console.WriteLine ("pp GET LINES: " + firstIndex + " " + lastIndex + " " + baseIndex);
-
+			
 			if (lastIndex >= 0)
 				FillDown (lastIndex);
 			if (firstIndex < 0)
 				FillUp (firstIndex);
-
+			
 			AssemblyLine[] array = new AssemblyLine [lastIndex - firstIndex + 1];
 			lines.CopyTo (baseIndex + firstIndex, array, 0, lastIndex - firstIndex + 1);
 			return array;
 		}
-
+		
 		public void FillUp (int targetLine)
 		{
 			if (baseIndex + targetLine >= 0)
 				return;
-
+			
 			// Lines we are missing
 			int linesReq = -(baseIndex + targetLine);
-
+			
 			//Console.WriteLine ("pp FILLUP: " + linesReq);
-
+			
 			// Last known valid address
 			long lastAddr = lines.Count > 0 ? lines [0].Address : baseAddress;
-
+			
 			// Addresses we are going to query to get the required lines
 			long addr = lastAddr - (linesReq + ExtraUpLines) * AddrPerLine; // 4 is just a guess
-
+			
 			int lastCount = 0;
 			bool limitFound = false;
 			AssemblyLine[] alines;
@@ -89,10 +89,10 @@ namespace Mono.Debugging.Backend
 				lastCount = alines.Length;
 			}
 			while (alines.Length < linesReq + ExtraUpLines);
-
+			
 			int max = limitFound ? alines.Length : alines.Length - ExtraUpLines;
 			if (max < 0) max = 0;
-
+			
 			// Fill the lines
 			for (int n=0; n < max; n++)
 				lines.Insert (n, alines [n + (alines.Length - max)]);
@@ -105,23 +105,23 @@ namespace Mono.Debugging.Backend
 			}
 			baseIndex += max;
 		}
-
+		
 		public void FillDown (int targetLine)
 		{
 			if (baseIndex + targetLine < lines.Count)
 				return;
-
+			
 			// Lines we are missing
 			int linesReq = (baseIndex + targetLine) - lines.Count + 1;
-
+			
 			//Console.WriteLine ("pp FILLDOWN: " + linesReq);
-
+			
 			// Last known valid address
 			long lastAddr = lines.Count > 0 ? lines [lines.Count - 1].Address : baseAddress;
-
+			
 			// Addresses we are going to query to get the required lines
 			long addr = lastAddr + (linesReq + ExtraDownLines) * AddrPerLine; // 4 is just a guess
-
+			
 			int lastCount = 0;
 			bool limitFound = false;
 			AssemblyLine[] alines;
@@ -135,9 +135,9 @@ namespace Mono.Debugging.Backend
 				lastCount = alines.Length;
 			}
 			while (alines.Length < linesReq + ExtraDownLines);
-
+			
 			int max = limitFound ? alines.Length : alines.Length - ExtraDownLines;
-
+			
 			// Fill the lines
 			for (int n=0; n < max; n++)
 				lines.Add (alines [n]);
@@ -148,7 +148,7 @@ namespace Mono.Debugging.Backend
 				lines.Add (line);
 			}
 		}
-
+		
 		public abstract AssemblyLine[] GetLines (long startAddr, long endAddr);
 	}
 }

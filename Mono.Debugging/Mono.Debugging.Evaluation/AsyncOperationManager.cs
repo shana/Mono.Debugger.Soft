@@ -77,7 +77,7 @@ namespace Mono.Debugging.Evaluation
 				throw new Exception (methodCall.ExceptionMessage);
 			}
 		}
-
+		
 		public void Dispose ()
 		{
 			Disposing = true;
@@ -96,7 +96,7 @@ namespace Mono.Debugging.Evaluation
 					op.InternalAbort ();
 			}
 		}
-
+		
 		public void EnterBusyState (AsyncOperation oper)
 		{
 			BusyStateEventArgs args = new BusyStateEventArgs ();
@@ -105,7 +105,7 @@ namespace Mono.Debugging.Evaluation
 			if (BusyStateChanged != null)
 				BusyStateChanged (this, args);
 		}
-
+		
 		public void LeaveBusyState (AsyncOperation oper)
 		{
 			BusyStateEventArgs args = new BusyStateEventArgs ();
@@ -114,7 +114,7 @@ namespace Mono.Debugging.Evaluation
 			if (BusyStateChanged != null)
 				BusyStateChanged (this, args);
 		}
-
+		
 		public event EventHandler<BusyStateEventArgs> BusyStateChanged;
 	}
 
@@ -122,9 +122,9 @@ namespace Mono.Debugging.Evaluation
 	{
 		internal bool Aborted;
 		internal AsyncOperationManager Manager;
-
+		
 		public bool Aborting { get; internal set; }
-
+		
 		internal void InternalAbort ()
 		{
 			ST.Monitor.Enter (this);
@@ -132,24 +132,24 @@ namespace Mono.Debugging.Evaluation
 				ST.Monitor.Exit (this);
 				return;
 			}
-
+			
 			if (Aborting) {
 				// Somebody else is aborting this. Just wait for it to finish.
 				ST.Monitor.Exit (this);
 				WaitForCompleted (ST.Timeout.Infinite);
 				return;
 			}
-
+			
 			Aborting = true;
-
+			
 			int abortState = 0;
 			int abortRetryWait = 100;
 			bool abortRequested = false;
-
+			
 			do {
 				if (abortState > 0)
 					ST.Monitor.Enter (this);
-
+				
 				try {
 					if (!Aborted && !abortRequested) {
 						// The Abort() call doesn't block. WaitForCompleted is used below to wait for the abort to succeed
@@ -176,7 +176,7 @@ namespace Mono.Debugging.Evaluation
 				}
 				ST.Monitor.Exit (this);
 			} while (!Aborted && !WaitForCompleted (abortRetryWait) && !Manager.Disposing);
-
+			
 			if (Manager.Disposing) {
 				InternalShutdown ();
 			}
@@ -188,7 +188,7 @@ namespace Mono.Debugging.Evaluation
 				}
 			}
 		}
-
+		
 		internal void InternalShutdown ()
 		{
 			lock (this) {
@@ -202,18 +202,18 @@ namespace Mono.Debugging.Evaluation
 				}
 			}
 		}
-
+		
 		/// <summary>
-		/// Message of the exception, if the execution failed.
+		/// Message of the exception, if the execution failed. 
 		/// </summary>
 		public string ExceptionMessage { get; set; }
 
 		/// <summary>
 		/// Returns a short description of the operation, to be shown in the Debugger Busy Dialog
-		/// when it blocks the execution of the debugger.
+		/// when it blocks the execution of the debugger. 
 		/// </summary>
 		public abstract string Description { get; }
-
+		
 		/// <summary>
 		/// Called to invoke the operation. The execution must be asynchronous (it must return immediatelly).
 		/// </summary>
@@ -230,7 +230,7 @@ namespace Mono.Debugging.Evaluation
 		/// Waits until the operation has been completed or aborted.
 		/// </summary>
 		public abstract bool WaitForCompleted (int timeout);
-
+		
 		/// <summary>
 		/// Called when the debugging session has been disposed.
 		/// I must cause any call to WaitForCompleted to exit, even if the operation

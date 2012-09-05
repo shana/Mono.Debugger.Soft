@@ -18,7 +18,7 @@ namespace Mono.Debugging.Client
 		bool hasDebugInfo;
 		string fullModuleName;
 		string fullTypeName;
-
+		
 		[NonSerialized]
 		DebuggerSession session;
 
@@ -39,7 +39,7 @@ namespace Mono.Debugging.Client
 			: this (address, addressSpace, location, language, isExternalCode, hasDebugInfo, false, fullModuleName, fullTypeName)
 		{
 		}
-
+		
 		public StackFrame (long address, string addressSpace, SourceLocation location, string language)
 			: this (address, addressSpace, location, language, string.IsNullOrEmpty (location.FileName), true, "", "")
 		{
@@ -54,7 +54,7 @@ namespace Mono.Debugging.Client
 			: this (address, "", location, language, string.IsNullOrEmpty (location.FileName), true, "", "")
 		{
 		}
-
+		
 		public StackFrame (long address, SourceLocation location, string language)
 			: this (address, "", location, language, string.IsNullOrEmpty (location.FileName), true, "", "")
 		{
@@ -64,11 +64,11 @@ namespace Mono.Debugging.Client
 		{
 			this.session = session;
 		}
-
+		
 		public DebuggerSession DebuggerSession {
 			get { return session; }
 		}
-
+		
 		public SourceLocation SourceLocation
 		{
 			get { return location; }
@@ -78,7 +78,7 @@ namespace Mono.Debugging.Client
 		{
 			get { return address; }
 		}
-
+		
 		public string AddressSpace {
 			get { return addressSpace; }
 		}
@@ -98,7 +98,7 @@ namespace Mono.Debugging.Client
 				return language;
 			}
 		}
-
+		
 		public bool IsExternalCode {
 			get { return isExternalCode; }
 		}
@@ -106,24 +106,24 @@ namespace Mono.Debugging.Client
 		public bool IsDebuggerHidden {
 			get { return isDebuggerHidden; }
 		}
-
+		
 		public bool HasDebugInfo {
 			get { return this.hasDebugInfo; }
 		}
-
+		
 		public string FullModuleName {
 			get { return this.fullModuleName; }
 		}
-
+		
 		public string FullTypeName {
 			get { return this.fullTypeName; }
 		}
-
+		
 		public ObjectValue[] GetLocalVariables ()
 		{
 			return GetLocalVariables (session.EvaluationOptions);
 		}
-
+		
 		public ObjectValue[] GetLocalVariables (EvaluationOptions options)
 		{
 			if (!hasDebugInfo)
@@ -132,12 +132,12 @@ namespace Mono.Debugging.Client
 			ObjectValue.ConnectCallbacks (this, values);
 			return values;
 		}
-
+		
 		public ObjectValue[] GetParameters ()
 		{
 			return GetParameters (session.EvaluationOptions);
 		}
-
+		
 		public ObjectValue[] GetParameters (EvaluationOptions options)
 		{
 			if (!hasDebugInfo)
@@ -146,7 +146,7 @@ namespace Mono.Debugging.Client
 			ObjectValue.ConnectCallbacks (this, values);
 			return values;
 		}
-
+		
 		public ObjectValue[] GetAllLocals ()
 		{
 			if (!hasDebugInfo)
@@ -156,7 +156,7 @@ namespace Mono.Debugging.Client
 				return evaluator.GetLocals (this);
 			return GetAllLocals (session.EvaluationOptions);
 		}
-
+		
 		public ObjectValue[] GetAllLocals (EvaluationOptions options)
 		{
 			if (!hasDebugInfo)
@@ -165,12 +165,12 @@ namespace Mono.Debugging.Client
 			ObjectValue.ConnectCallbacks (this, values);
 			return values;
 		}
-
+		
 		public ObjectValue GetThisReference ()
 		{
 			return GetThisReference (session.EvaluationOptions);
 		}
-
+		
 		public ObjectValue GetThisReference (EvaluationOptions options)
 		{
 			if (!hasDebugInfo)
@@ -180,12 +180,12 @@ namespace Mono.Debugging.Client
 				ObjectValue.ConnectCallbacks (this, value);
 			return value;
 		}
-
+		
 		public ExceptionInfo GetException ()
 		{
 			return GetException (session.EvaluationOptions);
 		}
-
+		
 		public ExceptionInfo GetException (EvaluationOptions options)
 		{
 			if (!hasDebugInfo)
@@ -195,19 +195,19 @@ namespace Mono.Debugging.Client
 				value.ConnectCallback (this);
 			return value;
 		}
-
+		
 		public string ResolveExpression (string exp)
 		{
 			return session.ResolveExpression (exp, location);
 		}
-
+		
 		public ObjectValue[] GetExpressionValues (string[] expressions, bool evaluateMethods)
 		{
 			EvaluationOptions options = session.EvaluationOptions.Clone ();
 			options.AllowMethodEvaluation = evaluateMethods;
 			return GetExpressionValues (expressions, options);
 		}
-
+		
 		public ObjectValue[] GetExpressionValues (string[] expressions, EvaluationOptions options)
 		{
 			if (!hasDebugInfo) {
@@ -226,14 +226,14 @@ namespace Mono.Debugging.Client
 			ObjectValue.ConnectCallbacks (this, values);
 			return values;
 		}
-
+		
 		public ObjectValue GetExpressionValue (string expression, bool evaluateMethods)
 		{
 			EvaluationOptions options = session.EvaluationOptions.Clone ();
 			options.AllowMethodEvaluation = evaluateMethods;
 			return GetExpressionValue (expression, options);
 		}
-
+		
 		public ObjectValue GetExpressionValue (string expression, EvaluationOptions options)
 		{
 			if (!hasDebugInfo)
@@ -244,7 +244,7 @@ namespace Mono.Debugging.Client
 			ObjectValue.ConnectCallbacks (this, values);
 			return values [0];
 		}
-
+		
 		/// <summary>
 		/// Returns True if the expression is valid and can be evaluated for this frame.
 		/// </summary>
@@ -252,7 +252,7 @@ namespace Mono.Debugging.Client
 		{
 			return ValidateExpression (expression, session.EvaluationOptions);
 		}
-
+		
 		/// <summary>
 		/// Returns True if the expression is valid and can be evaluated for this frame.
 		/// </summary>
@@ -262,14 +262,14 @@ namespace Mono.Debugging.Client
 				expression = ResolveExpression (expression);
 			return sourceBacktrace.ValidateExpression (index, expression, options);
 		}
-
+		
 		public CompletionData GetExpressionCompletionData (string exp)
 		{
 			if (!hasDebugInfo)
 				return null;
 			return sourceBacktrace.GetExpressionCompletionData (index, exp);
 		}
-
+		
 		// Returns disassembled code for this stack frame.
 		// firstLine is the relative code line. It can be negative.
 		public AssemblyLine[] Disassemble (int firstLine, int count)
@@ -289,22 +289,22 @@ namespace Mono.Debugging.Client
 			return String.Format("0x{0:X} in {1}{2}", address, location.MethodName, loc);
 		}
 	}
-
+	
 	[Serializable]
 	public struct ValidationResult
 	{
 		bool isValid;
 		string message;
-
+		
 		public ValidationResult (bool isValid, string message)
 		{
 			this.isValid = isValid;
 			this.message = message;
 		}
-
+		
 		public bool IsValid { get { return isValid; } }
 		public string Message { get { return message; } }
-
+		
 		public static implicit operator bool (ValidationResult result)
 		{
 			return result.isValid;

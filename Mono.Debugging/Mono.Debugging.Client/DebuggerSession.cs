@@ -43,7 +43,7 @@ namespace Mono.Debugging.Client
 	public delegate void BreakpointTraceHandler (BreakEvent be, string trace);
 	public delegate IExpressionEvaluator GetExpressionEvaluatorHandler (string extension);
 	public delegate IConnectionDialog ConnectionDialogCreator ();
-
+	
 	public abstract class DebuggerSession: IDisposable
 	{
 		InternalDebuggerSession frontend;
@@ -64,82 +64,82 @@ namespace Mono.Debugging.Client
 		DebuggerSessionOptions options;
 		Dictionary<string,string> resolvedExpressionCache = new Dictionary<string, string> ();
 		bool adjustingBreakpoints;
-
+		
 		ProcessInfo[] currentProcesses;
 
 		/// <summary>
 		/// Reports a debugger event
 		/// </summary>
 		public event EventHandler<TargetEventArgs> TargetEvent;
-
+		
 		/// <summary>
 		/// Raised when the debugger resumes execution after being stopped
 		/// </summary>
 		public event EventHandler TargetStarted;
-
+		
 		/// <summary>
 		/// Raised when the underlying debugging engine has been initialized and it is ready to start execution.
 		/// </summary>
 		public event EventHandler<TargetEventArgs> TargetReady;
-
+		
 		/// <summary>
 		/// Raised when the debugging session is paused
 		/// </summary>
 		public event EventHandler<TargetEventArgs> TargetStopped;
-
+		
 		/// <summary>
 		/// Raised when the execution is interrupted by an external event
 		/// </summary>
 		public event EventHandler<TargetEventArgs> TargetInterrupted;
-
+		
 		/// <summary>
 		/// Raised when a breakpoint is hit
 		/// </summary>
 		public event EventHandler<TargetEventArgs> TargetHitBreakpoint;
-
+		
 		/// <summary>
 		/// Raised when the execution is interrupted due to receiving a signal
 		/// </summary>
 		public event EventHandler<TargetEventArgs> TargetSignaled;
-
+		
 		/// <summary>
 		/// Raised when the debugged process exits
 		/// </summary>
 		public event EventHandler TargetExited;
-
+		
 		/// <summary>
 		/// Raised when an exception for which there is a catchpoint is thrown
 		/// </summary>
 		public event EventHandler<TargetEventArgs> TargetExceptionThrown;
-
+		
 		/// <summary>
 		/// Raised when an exception is unhandled
 		/// </summary>
 		public event EventHandler<TargetEventArgs> TargetUnhandledException;
-
+		
 		/// <summary>
 		/// Raised when a thread is started in the debugged process
 		/// </summary>
 		public event EventHandler<TargetEventArgs> TargetThreadStarted;
-
+		
 		/// <summary>
 		/// Raised when a thread is stopped in the debugged process
 		/// </summary>
 		public event EventHandler<TargetEventArgs> TargetThreadStopped;
-
+		
 		/// <summary>
 		/// Raised when the 'busy state' of the debugger changes.
 		/// The debugger may switch to busy state if it is in the middle
 		/// of an expression evaluation which can't be aborted.
 		/// </summary>
 		public event EventHandler<BusyStateEventArgs> BusyStateChanged;
-
+		
 		public DebuggerSession ()
 		{
 			UseOperationThread = true;
 			frontend = new InternalDebuggerSession (this);
 		}
-
+		
 		/// <summary>
 		/// Releases all resource used by the <see cref="Mono.Debugging.Client.DebuggerSession"/> object.
 		/// </summary>
@@ -160,7 +160,7 @@ namespace Mono.Debugging.Client
 				}
 			});
 		}
-
+		
 		/// <summary>
 		/// Gets or sets an exception handler to be invoked when an exception is raised by the debugger engine.
 		/// </summary>
@@ -172,7 +172,7 @@ namespace Mono.Debugging.Client
 			get { return exceptionHandler; }
 			set { exceptionHandler = value; }
 		}
-
+		
 		/// <summary>
 		/// Gets or sets the connection dialog creator callback.
 		/// </summary>
@@ -185,7 +185,7 @@ namespace Mono.Debugging.Client
 		/// This handler is invoked when the value of a tracepoint has to be printed
 		/// </remarks>
 		public BreakpointTraceHandler BreakpointTraceHandler { get; set; }
-
+		
 		/// <summary>
 		/// Gets or sets the type resolver handler.
 		/// </summary>
@@ -193,14 +193,14 @@ namespace Mono.Debugging.Client
 		/// This handler is invoked when the expression evaluator needs to resolve a type name.
 		/// </remarks>
 		public TypeResolverHandler TypeResolverHandler { get; set; }
-
+		
 		/// <summary>
 		/// Gets or sets the an expression evaluator provider
 		/// </summary>
 		/// <remarks>
 		/// This handler is invoked when the debugger needs to get an evaluator for a specific type of file
 		/// </remarks>
-		public GetExpressionEvaluatorHandler GetExpressionEvaluator { get; set; }
+		public GetExpressionEvaluatorHandler GetExpressionEvaluator { get; set; }		
 
 		/// <summary>
 		/// Gets or sets the custom break event hit handler.
@@ -217,7 +217,7 @@ namespace Mono.Debugging.Client
 				customBreakpointHitHandler = value;
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets or sets the breakpoint store for the debugger session.
 		/// </summary>
@@ -245,10 +245,10 @@ namespace Mono.Debugging.Client
 						breakpointStore.CheckingReadOnly -= BreakpointStoreCheckingReadOnly;
 						breakpointStore.ResetAdjustedBreakpoints ();
 					}
-
+					
 					breakpointStore = value;
 					ownedBreakpointStore = false;
-
+					
 					if (breakpointStore != null) {
 						if (started) {
 							foreach (BreakEvent bp in breakpointStore)
@@ -263,7 +263,7 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
+		
 		void Dispatch (Action action)
 		{
 			if (UseOperationThread) {
@@ -278,7 +278,7 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
+		
 		/// <summary>
 		/// Starts a debugging session
 		/// </summary>
@@ -297,7 +297,7 @@ namespace Mono.Debugging.Client
 				throw new ArgumentNullException ("startInfo");
 			if (options == null)
 				throw new ArgumentNullException ("options");
-
+			
 			lock (slock) {
 				this.options = options;
 				OnRunning ();
@@ -312,7 +312,7 @@ namespace Mono.Debugging.Client
 				});
 			}
 		}
-
+		
 		/// <summary>
 		/// Starts a debugging session by attaching the debugger to a running process
 		/// </summary>
@@ -331,7 +331,7 @@ namespace Mono.Debugging.Client
 				throw new ArgumentNullException ("proc");
 			if (options == null)
 				throw new ArgumentNullException ("options");
-
+			
 			lock (slock) {
 				this.options = options;
 				OnRunning ();
@@ -347,7 +347,7 @@ namespace Mono.Debugging.Client
 				});
 			}
 		}
-
+		
 		/// <summary>
 		/// Detaches this debugging session from the debugged process
 		/// </summary>
@@ -362,7 +362,7 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets a value indicating whether this <see cref="Mono.Debugging.Client.DebuggerSession"/> has been attached to a process using the Attach method.
 		/// </summary>
@@ -372,11 +372,11 @@ namespace Mono.Debugging.Client
 		public bool AttachedToProcess {
 			get {
 				lock (slock) {
-					return attached;
+					return attached; 
 				}
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets or sets the active thread.
 		/// </summary>
@@ -401,8 +401,8 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
-
+		
+		
 		/// <summary>
 		/// Executes one line of code
 		/// </summary>
@@ -421,7 +421,7 @@ namespace Mono.Debugging.Client
 				});
 			}
 		}
-
+		
 		/// <summary>
 		/// Executes one line of code, stepping into method invocations
 		/// </summary>
@@ -440,7 +440,7 @@ namespace Mono.Debugging.Client
 				});
 			}
 		}
-
+		
 		/// <summary>
 		/// Executes one low level instruction
 		/// </summary>
@@ -478,7 +478,7 @@ namespace Mono.Debugging.Client
 				});
 			}
 		}
-
+		
 		/// <summary>
 		/// Resumes the execution of the debugger and stops when the current method is exited
 		/// </summary>
@@ -497,7 +497,7 @@ namespace Mono.Debugging.Client
 				});
 			}
 		}
-
+		
 		/// <summary>
 		/// Returns the status of a breakpoint for this debugger session.
 		/// </summary>
@@ -512,7 +512,7 @@ namespace Mono.Debugging.Client
 			}
 			return BreakEventStatus.NotBound;
 		}
-
+		
 		/// <summary>
 		/// Returns a status message of a breakpoint for this debugger session.
 		/// </summary>
@@ -537,7 +537,7 @@ namespace Mono.Debugging.Client
 			}
 			return "The breakpoint will not currently be hit";
 		}
-
+		
 		void AddBreakEvent (BreakEvent be)
 		{
 			try {
@@ -550,14 +550,14 @@ namespace Mono.Debugging.Client
 				eventInfo.AttachSession (this, be);
 			} catch (Exception ex) {
 				string msg;
-
+				
 				if (be is FunctionBreakpoint)
 					msg = "Could not set breakpoint at location '" + ((FunctionBreakpoint) be).FunctionName + ":" + ((FunctionBreakpoint) be).Line + "'";
 				else if (be is Breakpoint)
 					msg = "Could not set breakpoint at location '" + ((Breakpoint) be).FileName + ":" + ((Breakpoint) be).Line + "'";
 				else
 					msg = "Could not set catchpoint for exception '" + ((Catchpoint) be).ExceptionName + "'";
-
+				
 				msg += " (" + ex.Message + ")";
 				OnDebuggerOutput (false, msg + "\n");
 				HandleException (ex);
@@ -583,7 +583,7 @@ namespace Mono.Debugging.Client
 				return true;
 			}
 		}
-
+		
 		void UpdateBreakEventStatus (BreakEvent be)
 		{
 			lock (breakpoints) {
@@ -599,7 +599,7 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
+		
 		void UpdateBreakEvent (BreakEvent be)
 		{
 			lock (breakpoints) {
@@ -608,7 +608,7 @@ namespace Mono.Debugging.Client
 					OnUpdateBreakEvent (binfo);
 			}
 		}
-
+		
 		void OnBreakpointAdded (object s, BreakEventArgs args)
 		{
 			lock (breakpoints) {
@@ -620,7 +620,7 @@ namespace Mono.Debugging.Client
 					AddBreakEvent (args.BreakEvent);
 			}
 		}
-
+		
 		void OnBreakpointRemoved (object s, BreakEventArgs args)
 		{
 			lock (breakpoints) {
@@ -632,7 +632,7 @@ namespace Mono.Debugging.Client
 					RemoveBreakEvent (args.BreakEvent);
 			}
 		}
-
+		
 		void OnBreakpointModified (object s, BreakEventArgs args)
 		{
 			lock (slock) {
@@ -640,7 +640,7 @@ namespace Mono.Debugging.Client
 					UpdateBreakEvent (args.BreakEvent);
 			}
 		}
-
+		
 		void OnBreakpointStatusChanged (object s, BreakEventArgs args)
 		{
 			lock (slock) {
@@ -651,7 +651,7 @@ namespace Mono.Debugging.Client
 
 		void BreakpointStoreCheckingReadOnly (object sender, ReadOnlyCheckEventArgs e)
 		{
-			// When this used 'lock', it was a common cause of deadlocks, as it is called on a timeout from the GUI
+			// When this used 'lock', it was a common cause of deadlocks, as it is called on a timeout from the GUI 
 			// thread, so if something else held the session lock, the GUI would deadlock. Instead we use TryEnter,
 			// so the worst that can happen is that users won't be able to modify breakpoints.
 			//FIXME: why do we always lock accesses to AllowBreakEventChanges? Only MonoDebuggerSession needs it locked.
@@ -664,14 +664,14 @@ namespace Mono.Debugging.Client
 					Monitor.Exit (slock);
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets the debugger options object
 		/// </summary>
 		public DebuggerSessionOptions Options {
 			get { return options; }
 		}
-
+		
 		/// <summary>
 		/// Gets or sets the evaluation options.
 		/// </summary>
@@ -679,7 +679,7 @@ namespace Mono.Debugging.Client
 			get { return options.EvaluationOptions; }
 			set { options.EvaluationOptions = value; }
 		}
-
+		
 		/// <summary>
 		/// Resumes the execution of the debugger
 		/// </summary>
@@ -698,7 +698,7 @@ namespace Mono.Debugging.Client
 				});
 			}
 		}
-
+		
 		/// <summary>
 		/// Pauses the execution of the debugger
 		/// </summary>
@@ -713,7 +713,7 @@ namespace Mono.Debugging.Client
 				}
 			});
 		}
-
+		
 		/// <summary>
 		/// Stops the execution of the debugger by killing the debugged process
 		/// </summary>
@@ -728,7 +728,7 @@ namespace Mono.Debugging.Client
 				}
 			});
 		}
-
+		
 		/// <summary>
 		/// Gets a value indicating whether the debuggee is currently running (not paused by the debugger)
 		/// </summary>
@@ -737,7 +737,7 @@ namespace Mono.Debugging.Client
 				return isRunning;
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets a list of all processes
 		/// </summary>
@@ -755,7 +755,7 @@ namespace Mono.Debugging.Client
 				return currentProcesses;
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets or sets the output writer callback.
 		/// </summary>
@@ -770,7 +770,7 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets or sets the log writer.
 		/// </summary>
@@ -785,7 +785,7 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
+		
 		/// <summary>
 		/// Gets the disassembly of a source code file
 		/// </summary>
@@ -804,12 +804,12 @@ namespace Mono.Debugging.Client
 				return OnDisassembleFile (file);
 			}
 		}
-
+		
 		public string ResolveExpression (string expression, string file, int line, int column)
 		{
 			return ResolveExpression (expression, new SourceLocation (null, file, line, column));
 		}
-
+		
 		public virtual string ResolveExpression (string expression, SourceLocation location)
 		{
 			if (TypeResolverHandler == null)
@@ -828,7 +828,7 @@ namespace Mono.Debugging.Client
 				return resolved ?? expression;
 			}
 		}
-
+		
 		/// <summary>
 		/// Stops the execution of background evaluations being done by the debugger
 		/// </summary>
@@ -855,14 +855,14 @@ namespace Mono.Debugging.Client
 		public virtual bool CanCancelAsyncEvaluations {
 			get { return false; }
 		}
-
+		
 		/// <summary>
 		/// Override to stop the execution of background evaluations being done by the debugger
 		/// </summary>
 		protected virtual void OnCancelAsyncEvaluations ()
 		{
 		}
-
+		
 		Mono.Debugging.Evaluation.ExpressionEvaluator defaultResolver = new Mono.Debugging.Evaluation.NRefactoryEvaluator ();
 		Dictionary <string, IExpressionEvaluator> evaluators = new Dictionary <string, IExpressionEvaluator> ();
 
@@ -894,8 +894,8 @@ namespace Mono.Debugging.Client
 				return defaultResolver;
 			return result.Evaluator;
 		}
-
-
+		
+		
 		/// <summary>
 		/// Called when an expression needs to be resolved
 		/// </summary>
@@ -912,7 +912,7 @@ namespace Mono.Debugging.Client
 		{
 			return defaultResolver.Resolve (this, location, expression);
 		}
-
+		
 		internal protected string ResolveIdentifierAsType (string identifier, SourceLocation location)
 		{
 			if (TypeResolverHandler != null)
@@ -920,7 +920,7 @@ namespace Mono.Debugging.Client
 			else
 				return null;
 		}
-
+		
 		internal ThreadInfo[] GetThreads (long processId)
 		{
 			lock (slock) {
@@ -930,7 +930,7 @@ namespace Mono.Debugging.Client
 				return threads;
 			}
 		}
-
+		
 		internal Backtrace GetBacktrace (long processId, long threadId)
 		{
 			lock (slock) {
@@ -940,23 +940,23 @@ namespace Mono.Debugging.Client
 				return bt;
 			}
 		}
-
+		
 		void ForceStop ()
 		{
 			TargetEventArgs args = new TargetEventArgs (TargetEventType.TargetStopped);
 			OnTargetEvent (args);
 		}
-
+		
 		void ForceExit ()
 		{
 			TargetEventArgs args = new TargetEventArgs (TargetEventType.TargetExited);
 			OnTargetEvent (args);
 		}
-
+		
 		internal protected void OnTargetEvent (TargetEventArgs args)
 		{
 			currentProcesses = null;
-
+			
 			if (args.Process != null)
 				args.Process.Attach (this);
 			if (args.Thread != null) {
@@ -1029,7 +1029,7 @@ namespace Mono.Debugging.Client
 					evnt = TargetThreadStopped;
 					break;
 			}
-
+			
 			if (evnt != null)
 				evnt (this, args);
 
@@ -1037,19 +1037,19 @@ namespace Mono.Debugging.Client
 			if (targetEvent != null)
 				targetEvent (this, args);
 		}
-
+		
 		internal void OnRunning ()
 		{
 			isRunning = true;
 			if (TargetStarted != null)
 				TargetStarted (this, EventArgs.Empty);
 		}
-
+		
 		internal protected void OnStarted ()
 		{
 			OnStarted (null);
 		}
-
+		
 		internal protected virtual void OnStarted (ThreadInfo t)
 		{
 			OnTargetEvent (new TargetEventArgs (TargetEventType.TargetReady) { Thread = t });
@@ -1059,7 +1059,7 @@ namespace Mono.Debugging.Client
 					AddBreakEvent (bp);
 			}
 		}
-
+		
 		internal protected void OnTargetOutput (bool isStderr, string text)
 		{
 			lock (olock) {
@@ -1067,7 +1067,7 @@ namespace Mono.Debugging.Client
 					outputWriter (isStderr, text);
 			}
 		}
-
+		
 		internal protected void OnDebuggerOutput (bool isStderr, string text)
 		{
 			lock (olock) {
@@ -1075,13 +1075,13 @@ namespace Mono.Debugging.Client
 					logWriter (isStderr, text);
 			}
 		}
-
+		
 		internal protected void SetBusyState (BusyStateEventArgs args)
 		{
 			if (BusyStateChanged != null)
 				BusyStateChanged (this, args);
 		}
-
+		
 		/// <summary>
 		/// Tries to bind all unbound breakpoints of a source file
 		/// </summary>
@@ -1109,7 +1109,7 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
+		
 		void RetryEventBind (BreakEventInfo binfo)
 		{
 			// Try inserting the breakpoint again
@@ -1131,7 +1131,7 @@ namespace Mono.Debugging.Client
 				HandleException (ex);
 			}
 		}
-
+		
 		/// <summary>
 		/// Unbinds all bound breakpoints of a source file
 		/// </summary>
@@ -1164,7 +1164,7 @@ namespace Mono.Debugging.Client
 				}
 			}
 		}
-
+		
 		internal void NotifyBreakEventStatusChanged (BreakEvent be)
 		{
 			var s = GetBreakEventStatus (be);
@@ -1172,7 +1172,7 @@ namespace Mono.Debugging.Client
 				OnDebuggerOutput (true, GetBreakEventErrorMessage (be) + ": " + GetBreakEventStatusMessage (be) + "\n");
 			Breakpoints.NotifyStatusChanged (be);
 		}
-
+		
 		string GetBreakEventErrorMessage (BreakEvent be)
 		{
 			Breakpoint bp = be as Breakpoint;
@@ -1181,7 +1181,7 @@ namespace Mono.Debugging.Client
 			Catchpoint cp = (Catchpoint) be;
 			return string.Format ("Could not enable catchpoint for exception '{0}'", cp.ExceptionName);
 		}
-
+		
 		/// <summary>
 		/// Reports an unhandled exception in the debugger
 		/// </summary>
@@ -1202,7 +1202,7 @@ namespace Mono.Debugging.Client
 			else
 				return false;
 		}
-
+		
 		internal void AdjustBreakpointLocation (Breakpoint b, int newLine)
 		{
 			lock (breakpoints) {
@@ -1220,7 +1220,7 @@ namespace Mono.Debugging.Client
 		/// a background thread, so it will not block the caller of the corresponding public methods.
 		/// </summary>
 		protected bool UseOperationThread { get; set; }
-
+		
 		/// <summary>
 		/// Called to start the execution of the debugger
 		/// </summary>
@@ -1228,7 +1228,7 @@ namespace Mono.Debugging.Client
 		/// Startup information
 		/// </param>
 		protected abstract void OnRun (DebuggerStartInfo startInfo);
-
+		
 		/// <summary>
 		/// Called to attach the debugger to a running process
 		/// </summary>
@@ -1241,7 +1241,7 @@ namespace Mono.Debugging.Client
 		/// Called to detach the debugging session from the running process
 		/// </summary>
 		protected abstract void OnDetach ();
-
+		
 		/// <summary>
 		/// Called when the active thread has to be changed
 		/// </summary>
@@ -1255,18 +1255,18 @@ namespace Mono.Debugging.Client
 		/// This method can only be called when the debuggee is stopped by the debugger
 		/// </remarks>
 		protected abstract void OnSetActiveThread (long processId, long threadId);
-
+		
 		/// <summary>
 		/// Called when the debug session has to be paused
 		/// </summary>
 		protected abstract void OnStop ();
-
+		
 		/// <summary>
 		/// Called when the target process has to be exited
 		/// </summary>
 		protected abstract void OnExit ();
-
-
+		
+		
 		/// <summary>
 		/// Called to step one source code line
 		/// </summary>
@@ -1314,7 +1314,7 @@ namespace Mono.Debugging.Client
 		/// This method can only be called when the debuggee is stopped by the debugger
 		/// </remarks>
 		protected abstract void OnContinue ();
-
+		
 		//breakpoints etc
 
 		/// <summary>
@@ -1333,7 +1333,7 @@ namespace Mono.Debugging.Client
 		/// update the hit point, etc.
 		/// </remarks>
 		protected abstract BreakEventInfo OnInsertBreakEvent (BreakEvent breakEvent);
-
+		
 		/// <summary>
 		/// Called when a breakpoint has been removed.
 		/// </summary>
@@ -1356,10 +1356,10 @@ namespace Mono.Debugging.Client
 		/// This method is called when some information about the breakpoint changes.
 		/// Notice that the file and line of a breakpoint or the exception name of
 		/// a catchpoint can't be modified. Changes of the Enabled property are
-		/// notified by calling OnEnableBreakEvent.
+		/// notified by calling OnEnableBreakEvent. 
 		/// </remarks>
 		protected abstract void OnUpdateBreakEvent (BreakEventInfo eventInfo);
-
+		
 		/// <summary>
 		/// Called when a break event is enabled or disabled
 		/// </summary>
@@ -1370,7 +1370,7 @@ namespace Mono.Debugging.Client
 		/// The new status
 		/// </param>
 		protected abstract void OnEnableBreakEvent (BreakEventInfo eventInfo, bool enable);
-
+		
 		/// <summary>
 		/// Queried when the debugger session has to check if changes in breakpoints are allowed or not
 		/// </summary>
@@ -1382,7 +1382,7 @@ namespace Mono.Debugging.Client
 		/// adding, removing or doing changes in breakpoints.
 		/// </remarks>
 		protected virtual bool AllowBreakEventChanges { get { return true; } }
-
+		
 		/// <summary>
 		/// Called to get a list of the threads of a process
 		/// </summary>
@@ -1393,7 +1393,7 @@ namespace Mono.Debugging.Client
 		/// This method can only be called when the debuggee is stopped by the debugger
 		/// </remarks>
 		protected abstract ThreadInfo[] OnGetThreads (long processId);
-
+		
 		/// <summary>
 		/// Called to get a list of all debugee processes
 		/// </summary>
@@ -1401,7 +1401,7 @@ namespace Mono.Debugging.Client
 		/// This method can only be called when the debuggee is stopped by the debugger
 		/// </remarks>
 		protected abstract ProcessInfo[] OnGetProcesses ();
-
+		
 		/// <summary>
 		/// Called to get the backtrace of a thread
 		/// </summary>
@@ -1415,7 +1415,7 @@ namespace Mono.Debugging.Client
 		/// This method can only be called when the debuggee is stopped by the debugger
 		/// </remarks>
 		protected abstract Backtrace OnGetThreadBacktrace (long processId, long threadId);
-
+		
 		/// <summary>
 		/// Called to gets the disassembly of a source code file
 		/// </summary>
@@ -1432,23 +1432,23 @@ namespace Mono.Debugging.Client
 		{
 			return null;
 		}
-
+		
 		protected IDebuggerSessionFrontend Frontend {
 			get {
 				return frontend;
 			}
 		}
 	}
-
+	
 	class InternalDebuggerSession: IDebuggerSessionFrontend
 	{
 		DebuggerSession session;
-
+		
 		public InternalDebuggerSession (DebuggerSession session)
 		{
 			this.session = session;
 		}
-
+		
 		public void NotifyTargetEvent (TargetEventArgs args)
 		{
 			session.OnTargetEvent (args);
@@ -1458,22 +1458,22 @@ namespace Mono.Debugging.Client
 		{
 			session.OnTargetOutput (isStderr, text);
 		}
-
+		
 		public void NotifyDebuggerOutput (bool isStderr, string text)
 		{
 			session.OnDebuggerOutput (isStderr, text);
 		}
-
+		
 		public void NotifyStarted (ThreadInfo t)
 		{
 			session.OnStarted (t);
 		}
-
+		
 		public void NotifyStarted ()
 		{
 			session.OnStarted ();
 		}
-
+		
 		public void BindSourceFileBreakpoints (string fullFilePath)
 		{
 			session.BindSourceFileBreakpoints (fullFilePath);
@@ -1490,15 +1490,16 @@ namespace Mono.Debugging.Client
 	public class BusyStateEventArgs: EventArgs
 	{
 		public bool IsBusy { get; internal set; }
-
+		
 		public string Description { get; internal set; }
 	}
-
+	
 	public interface IConnectionDialog : IDisposable
 	{
 		event EventHandler UserCancelled;
-
+		
 		//message may be null in which case the dialog should construct a default
 		void SetMessage (DebuggerStartInfo dsi, string message, bool listening, int attemptNumber);
 	}
 }
+

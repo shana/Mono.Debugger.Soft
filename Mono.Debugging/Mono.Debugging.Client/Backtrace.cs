@@ -9,23 +9,23 @@ namespace Mono.Debugging.Client
 	{
 		IBacktrace serverBacktrace;
 		int count;
-
+		
 		[NonSerialized]
 		DebuggerSession session;
 
 		List<StackFrame> frames;
-
+		
 		public Backtrace (IBacktrace serverBacktrace)
 		{
 			this.serverBacktrace = serverBacktrace;
-
+			
 			count = serverBacktrace.FrameCount;
 
 			// Get some initial frames
 			if (count > 0)
 				GetFrame (0);
 		}
-
+		
 		internal void Attach (DebuggerSession session)
 		{
 			this.session = session;
@@ -55,7 +55,7 @@ namespace Mono.Debugging.Client
 					sf.Attach (session);
 				}
 			}
-
+			
 			if (frames.Count > 0)
 				return frames[System.Math.Min (System.Math.Max (0, n), frames.Count - 1)];
 			else

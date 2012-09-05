@@ -43,7 +43,7 @@ namespace Mono.Debugging.Evaluation
 			this.ctx = ctx;
 			originalOptions = ctx.Options;
 		}
-
+		
 		public virtual object ObjectValue {
 			get {
 				object ob = Value;
@@ -55,12 +55,12 @@ namespace Mono.Debugging.Evaluation
 					return ob;
 			}
 		}
-
+		
 		public abstract object Value { get; set; }
 		public abstract string Name { get; }
 		public abstract object Type { get; }
 		public abstract ObjectValueFlags Flags { get; }
-
+		
 		// For class members, the type declaring the member (null otherwise)
 		public virtual object DeclaringType {
 			get { return null; }
@@ -72,7 +72,7 @@ namespace Mono.Debugging.Evaluation
 				return ctx;
 			}
 		}
-
+		
 		public EvaluationContext GetContext (EvaluationOptions options)
 		{
 			return ctx.WithOptions (options);
@@ -82,7 +82,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			return CreateObjectValue (withTimeout, Context.Options);
 		}
-
+		
 		public ObjectValue CreateObjectValue (bool withTimeout, EvaluationOptions options)
 		{
 			if (!CanEvaluate (options))
@@ -94,12 +94,12 @@ namespace Mono.Debugging.Evaluation
 			} else
 				return CreateObjectValue (options);
 		}
-
+		
 		public ObjectValue CreateObjectValue (EvaluationOptions options)
 		{
 			if (!CanEvaluate (options))
 				return DC.ObjectValue.CreateImplicitNotSupported (this, new ObjectPath (Name), ctx.Adapter.GetTypeName (GetContext (options), Type), Flags);
-
+			
 			Connect ();
 			try {
 				return OnCreateObjectValue (options);
@@ -114,22 +114,22 @@ namespace Mono.Debugging.Evaluation
 				return DC.ObjectValue.CreateUnknown (Name);
 			}
 		}
-
+		
 		protected virtual bool CanEvaluate (EvaluationOptions options)
 		{
 			return true;
 		}
-
+		
 		protected virtual ObjectValue OnCreateObjectValue (EvaluationOptions options)
 		{
 			string name = Name;
 			if (string.IsNullOrEmpty (name))
 				name = "?";
-
+			
 			EvaluationContext newCtx = GetContext (options);
 			EvaluationContext oldCtx = Context;
 			object val = null;
-
+			
 			try {
 				// Note: The Value property implementation may make use of the EvaluationOptions,
 				// so we need to override our context temporarily to do the evaluation.
@@ -138,7 +138,7 @@ namespace Mono.Debugging.Evaluation
 			} finally {
 				ctx = oldCtx;
 			}
-
+			
 			if (val != null)
 				return newCtx.Adapter.CreateObjectValue (newCtx, this, new ObjectPath (name), val, Flags);
 			else
@@ -149,7 +149,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			return CreateObjectValue (true, options);
 		}
-
+		
 		EvaluationResult IObjectValueSource.SetValue (ObjectPath path, string value, EvaluationOptions options)
 		{
 			try {
@@ -164,17 +164,17 @@ namespace Mono.Debugging.Evaluation
 				ctx.WriteDebuggerError (ex);
 				ctx.WriteDebuggerOutput ("Value assignment failed: {0}: {1}\n", ex.GetType (), ex.Message);
 			}
-
+			
 			try {
 				return ctx.Evaluator.TargetObjectToExpression (ctx, Value);
 			} catch (Exception ex) {
 				ctx.WriteDebuggerError (ex);
 				ctx.WriteDebuggerOutput ("Value assignment failed: {0}: {1}\n", ex.GetType (), ex.Message);
 			}
-
+			
 			return null;
 		}
-
+		
 		object IObjectValueSource.GetRawValue (ObjectPath path, EvaluationOptions options)
 		{
 			return ctx.Adapter.ToRawValue (GetContext (options), this, Value);
@@ -194,7 +194,7 @@ namespace Mono.Debugging.Evaluation
 		{
 			return GetChildren (path, index, count, options);
 		}
-
+		
 		public virtual string CallToString ()
 		{
 			return ctx.Adapter.CallToString (ctx, Value);
@@ -229,7 +229,7 @@ namespace Mono.Debugging.Evaluation
 			}
 			return new ValueReference [0];
 		}
-
+		
 		public IObjectSource ParentSource { get; internal set; }
 
 		EvaluationContext GetChildrenContext (EvaluationOptions options)
@@ -256,7 +256,7 @@ namespace Mono.Debugging.Evaluation
 		public virtual ValueReference GetChild (string name, EvaluationOptions options)
 		{
 			object obj = Value;
-
+			
 			if (obj == null)
 				return null;
 
@@ -269,12 +269,12 @@ namespace Mono.Debugging.Evaluation
 
 				return new ArrayValueReference (ctx, obj, indices);
 			}
-
+			
 			if (ctx.Adapter.IsClassInstance (Context, obj)) {
 				ValueReference val = ctx.Adapter.GetMember (GetChildrenContext (options), this, Type, obj, name);
 				return val;
 			}
-
+					
 			return null;
 		}
 	}

@@ -58,28 +58,28 @@ namespace Mono.Debugging.Evaluation
 			}
 		}
 
-
+		
 		public override object Type {
 			get {
 				throw new NotSupportedException();
 			}
 		}
 
-
+		
 		public override object ObjectValue {
 			get {
 				throw new NotSupportedException ();
 			}
 		}
 
-
+		
 		public override string Name {
 			get {
 				return name;
 			}
 		}
 
-
+		
 		public override ObjectValueFlags Flags {
 			get {
 				return ObjectValueFlags.Namespace;
@@ -89,12 +89,12 @@ namespace Mono.Debugging.Evaluation
 		public override ValueReference GetChild (string name, EvaluationOptions options)
 		{
 			string newNs = namspace + "." + name;
-
+			
 			EvaluationContext ctx = GetContext (options);
 			object t = ctx.Adapter.GetType (ctx, newNs);
 			if (t != null)
 				return new TypeValueReference (ctx, t);
-
+			
 			return new NamespaceValueReference (ctx, newNs);
 		}
 
@@ -126,9 +126,9 @@ namespace Mono.Debugging.Evaluation
 			list.Sort (delegate (ValueReference v1, ValueReference v2) {
 				return v1.Name.CompareTo (v2.Name);
 			});
-
+			
 			// Child namespaces
-
+			
 			List<ValueReference> listNs = new List<ValueReference> ();
 			foreach (string ns in childNamespaces)
 				listNs.Add (new NamespaceValueReference (ctx, ns));

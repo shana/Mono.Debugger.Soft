@@ -41,107 +41,107 @@ namespace Mono.Debugging.Client
 		string fileName;
 		//int column;
 		int line;
-
+		
 		public Breakpoint (string fileName, int line/*, int column*/)
 		{
 			FileName = fileName;
 			//Column = column;
 			Line = line;
 		}
-
+		
 		internal Breakpoint (XmlElement elem): base (elem)
 		{
 			string s = elem.GetAttribute ("file");
 			if (!string.IsNullOrEmpty (s))
 				fileName = s;
-
+			
 			s = elem.GetAttribute ("line");
 			if (string.IsNullOrEmpty (s) || !int.TryParse (s, out line))
 				line = 1;
-
+			
 			//s = elem.GetAttribute ("column");
 			//if (string.IsNullOrEmpty (s) || !int.TryParse (s, out column))
 			//	column = 1;
-
+			
 			s = elem.GetAttribute ("conditionExpression");
 			if (!string.IsNullOrEmpty (s))
 				conditionExpression = s;
-
+			
 			s = elem.GetAttribute ("breakIfConditionChanges");
 			if (!string.IsNullOrEmpty (s) && !bool.TryParse (s, out breakIfConditionChanges))
 				breakIfConditionChanges = false;
 		}
-
+		
 		internal override XmlElement ToXml (XmlDocument doc)
 		{
 			XmlElement elem = base.ToXml (doc);
-
+			
 			if (!string.IsNullOrEmpty (fileName))
 				elem.SetAttribute ("file", fileName);
-
+			
 			elem.SetAttribute ("line", line.ToString ());
 			//elem.SetAttribute ("column", column.ToString ());
-
+			
 			if (!string.IsNullOrEmpty (conditionExpression)) {
 				elem.SetAttribute ("conditionExpression", conditionExpression);
 				if (breakIfConditionChanges)
 					elem.SetAttribute ("breakIfConditionChanges", "True");
 			}
-
+			
 			return elem;
 		}
-
+		
 		public string FileName {
 			get { return fileName; }
 			protected set { fileName = value; }
 		}
-
+		
 		//public int Column {
 		//	get { return adjustedColumn == -1 ? column : adjustedColumn; }
 		//	protected set { column = value; }
 		//}
-
+		
 		public int OriginalLine {
 			get { return line; }
 		}
-
+		
 		public int Line {
 			get { return adjustedLine == -1 ? line : adjustedLine; }
 			protected set { line = value; }
 		}
-
+		
 		//public void SetColumn (int newColumn)
 		//{
 		//	ResetAdjustedColumn ();
 		//	column = newColumn;
 		//}
-
+		
 		public void SetLine (int newLine)
 		{
 			ResetAdjustedLine ();
 			line = newLine;
 		}
-
+		
 		//internal void SetAdjustedColumn (int newColumn)
 		//{
 		//	adjustedColumn = newColumn;
 		//}
-
+		
 		internal void SetAdjustedLine (int newLine)
 		{
 			adjustedLine = newLine;
 		}
-
+		
 		//internal void ResetAdjustedColumn ()
 		//{
 		//	adjustedColumn = -1;
 		//}
-
+		
 		internal void ResetAdjustedLine ()
 		{
 			adjustedLine = -1;
 		}
-
+		
 		//internal bool HasAdjustedColumn {
 		//	get { return adjustedColumn != -1; }
 		//}
@@ -158,7 +158,7 @@ namespace Mono.Debugging.Client
 				conditionExpression = value;
 			}
 		}
-
+		
 		public string LastConditionValue {
 			get {
 				return lastConditionValue;
@@ -167,7 +167,7 @@ namespace Mono.Debugging.Client
 				lastConditionValue = value;
 			}
 		}
-
+		
 		public bool BreakIfConditionChanges {
 			get {
 				return breakIfConditionChanges;
@@ -176,13 +176,13 @@ namespace Mono.Debugging.Client
 				breakIfConditionChanges = value;
 			}
 		}
-
+		
 		public override void CopyFrom (BreakEvent ev)
 		{
 			base.CopyFrom (ev);
-
+			
 			Breakpoint bp = (Breakpoint) ev;
-
+			
 			breakIfConditionChanges = bp.breakIfConditionChanges;
 			conditionExpression = bp.conditionExpression;
 			fileName = bp.fileName;
@@ -190,13 +190,13 @@ namespace Mono.Debugging.Client
 			line = bp.line;
 		}
 	}
-
+	
 	public enum HitAction
 	{
 		Break,
 		PrintExpression,
 		CustomAction
 	}
-
+	
 	public delegate bool BreakEventHitHandler (string actionId, BreakEvent be);
 }

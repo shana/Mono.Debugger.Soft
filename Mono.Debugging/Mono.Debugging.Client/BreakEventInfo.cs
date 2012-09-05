@@ -1,21 +1,21 @@
-//
+// 
 // BreakEventInfo.cs
-//
+//  
 // Author:
 //       Lluis Sanchez Gual <lluis@novell.com>
-//
+// 
 // Copyright (c) 2011 Novell, Inc (http://www.novell.com)
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,12 +35,12 @@ namespace Mono.Debugging.Client
 	{
 		DebuggerSession session;
 		int adjustedLine = -1;
-
+		
 		/// <summary>
 		/// Gets or sets the implementation specific handle of the breakpoint
 		/// </summary>
 		public object Handle { get; set; }
-
+		
 		/// <summary>
 		/// Break event that this instance represents
 		/// </summary>
@@ -55,7 +55,7 @@ namespace Mono.Debugging.Client
 		/// Gets a description of the status
 		/// </summary>
 		public string StatusMessage { get; private set; }
-
+		
 		internal void AttachSession (DebuggerSession s, BreakEvent ev)
 		{
 			session = s;
@@ -88,13 +88,13 @@ namespace Mono.Debugging.Client
 			else
 				adjustedLine = newLine;
 		}
-
+		
 		public void UpdateHitCount (int count)
 		{
 			BreakEvent.HitCount = count;
 			BreakEvent.NotifyUpdate ();
 		}
-
+		
 		public void SetStatus (BreakEventStatus s, string statusMessage)
 		{
 			if (s != Status) {
@@ -104,13 +104,13 @@ namespace Mono.Debugging.Client
 					session.NotifyBreakEventStatusChanged (BreakEvent);
 			}
 		}
-
+		
 		public bool RunCustomBreakpointAction (string actionId)
 		{
 			BreakEventHitHandler h = session.CustomBreakEventHitHandler;
 			return h != null && h (actionId, BreakEvent);
 		}
-
+		
 		public void UpdateLastTraceValue (string value)
 		{
 			BreakEvent.LastTraceValue = value;

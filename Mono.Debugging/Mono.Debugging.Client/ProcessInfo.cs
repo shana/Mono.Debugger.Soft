@@ -34,13 +34,13 @@ namespace Mono.Debugging.Client
 	{
 		long id;
 		string name;
-
+		
 		[NonSerialized]
 		ThreadInfo[] currentThreads;
-
+		
 		[NonSerialized]
 		DebuggerSession session;
-
+		
 		internal void Attach (DebuggerSession session)
 		{
 			this.session = session;
@@ -49,7 +49,7 @@ namespace Mono.Debugging.Client
 					t.Attach (session);
 			}
 		}
-
+		
 		public long Id {
 			get {
 				return id;
@@ -67,7 +67,7 @@ namespace Mono.Debugging.Client
 			this.id = id;
 			this.name = name;
 		}
-
+		
 		public ThreadInfo[] GetThreads ()
 		{
 			if (currentThreads == null)

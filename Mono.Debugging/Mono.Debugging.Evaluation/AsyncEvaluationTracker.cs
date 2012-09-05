@@ -33,7 +33,7 @@ using Mono.Debugging.Backend;
 namespace Mono.Debugging.Evaluation
 {
 	public delegate ObjectValue ObjectEvaluatorDelegate ();
-
+	
 	/// <summary>
 	/// This class can be used to generate an ObjectValue using a provided evaluation delegate.
 	/// The value is initialy evaluated synchronously (blocking the caller). If no result
@@ -48,12 +48,12 @@ namespace Mono.Debugging.Evaluation
 		int asyncCounter = 0;
 		int cancelTimestamp = 0;
 		TimedEvaluator runner = new TimedEvaluator ();
-
+		
 		public int WaitTime {
 			get { return runner.RunTimeout; }
 			set { runner.RunTimeout = value; }
 		}
-
+		
 		public bool IsEvaluating {
 			get { return runner.IsEvaluating; }
 		}
@@ -66,7 +66,7 @@ namespace Mono.Debugging.Evaluation
 				tid = asyncCounter++;
 				id = tid.ToString ();
 			}
-
+			
 			ObjectValue val = null;
 			bool done = runner.Run (delegate {
 					if (tid >= cancelTimestamp)
@@ -76,14 +76,14 @@ namespace Mono.Debugging.Evaluation
 				if (tid >= cancelTimestamp)
 					OnEvaluationDone (id, val);
 			});
-
+			
 			if (done)
 				return val ?? ObjectValue.CreateUnknown (name);
 			    // 'val' may be null if the timed evaluator is disposed while evaluating
 			else
 				return ObjectValue.CreateEvaluating (this, new ObjectPath (id, name), flags);
 		}
-
+		
 		public void Dispose ()
 		{
 			runner.Dispose ();
@@ -127,7 +127,7 @@ namespace Mono.Debugging.Evaluation
 					asyncResults [id] = val;
 			}
 		}
-
+		
 		void IObjectValueUpdater.RegisterUpdateCallbacks (UpdateCallback[] callbacks)
 		{
 			foreach (UpdateCallback c in callbacks) {

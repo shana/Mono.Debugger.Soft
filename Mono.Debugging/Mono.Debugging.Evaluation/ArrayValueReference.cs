@@ -51,7 +51,7 @@ namespace Mono.Debugging.Evaluation
 				adaptor.SetElement (indices, value);
 			}
 		}
-
+		
 		public override string Name {
 			get {
 				StringBuilder sb = new StringBuilder ();
@@ -64,13 +64,13 @@ namespace Mono.Debugging.Evaluation
 				return sb.ToString ();
 			}
 		}
-
+		
 		public override object Type {
 			get {
 				return adaptor.ElementType;
 			}
 		}
-
+		
 		public override ObjectValueFlags Flags {
 			get {
 				return ObjectValueFlags.ArrayElement;

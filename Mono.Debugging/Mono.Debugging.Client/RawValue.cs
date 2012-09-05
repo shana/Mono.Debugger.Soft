@@ -1,21 +1,21 @@
-//
+// 
 // RawValue.cs
-//
+//  
 // Author:
 //       Lluis Sanchez Gual <lluis@novell.com>
-//
+// 
 // Copyright (c) 2010 Novell, Inc (http://www.novell.com)
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,7 +37,7 @@ namespace Mono.Debugging.Client
 	{
 		IRawValue source;
 		internal EvaluationOptions options;
-
+		
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Mono.Debugging.Client.RawValue"/> class.
 		/// </summary>
@@ -48,16 +48,16 @@ namespace Mono.Debugging.Client
 		{
 			this.source = source;
 		}
-
+		
 		internal IRawValue Source {
 			get { return this.source; }
 		}
-
+		
 		/// <summary>
 		/// Full name of the type of the object
 		/// </summary>
 		public string TypeName { get; set; }
-
+		
 		/// <summary>
 		/// Invokes a method on the object
 		/// </summary>
@@ -78,7 +78,7 @@ namespace Mono.Debugging.Client
 				val.options = options;
 			return res;
 		}
-
+		
 		/// <summary>
 		/// Gets the value of a field or property
 		/// </summary>
@@ -96,7 +96,7 @@ namespace Mono.Debugging.Client
 				val.options = options;
 			return res;
 		}
-
+		
 		/// <summary>
 		/// Sets the value of a field or property
 		/// </summary>
@@ -111,7 +111,7 @@ namespace Mono.Debugging.Client
 			source.SetMemberValue (name, value, options);
 		}
 	}
-
+	
 	/// <summary>
 	/// Represents an array of objects in the process being debugged
 	/// </summary>
@@ -120,7 +120,7 @@ namespace Mono.Debugging.Client
 	{
 		IRawValueArray source;
 		int[] dimensions;
-
+		
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Mono.Debugging.Client.RawValueArray"/> class.
 		/// </summary>
@@ -131,11 +131,11 @@ namespace Mono.Debugging.Client
 		{
 			this.source = source;
 		}
-
+		
 		internal IRawValueArray Source {
 			get { return this.source; }
 		}
-
+		
 		/// <summary>
 		/// Full type name of the array items
 		/// </summary>
@@ -158,7 +158,7 @@ namespace Mono.Debugging.Client
 				source.SetValue (new int[] { index }, value);
 			}
 		}
-
+		
 		/// <summary>
 		/// Returns an array with all items of the RawValueArray
 		/// </summary>
@@ -185,7 +185,7 @@ namespace Mono.Debugging.Client
 			}
 		}
 	}
-
+	
 	/// <summary>
 	/// Represents a string object in the process being debugged
 	/// </summary>
@@ -193,7 +193,7 @@ namespace Mono.Debugging.Client
 	public class RawValueString
 	{
 		IRawValueString source;
-
+		
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Mono.Debugging.Client.RawValueString"/> class.
 		/// </summary>
@@ -204,7 +204,7 @@ namespace Mono.Debugging.Client
 		{
 			this.source = source;
 		}
-
+		
 		internal IRawValueString Source {
 			get { return this.source; }
 		}
@@ -215,7 +215,7 @@ namespace Mono.Debugging.Client
 		public int Length {
 			get { return source.Length; }
 		}
-
+		
 		/// <summary>
 		/// Gets a substring of the string
 		/// </summary>
@@ -229,7 +229,7 @@ namespace Mono.Debugging.Client
 		{
 			return source.Substring (index, length);
 		}
-
+		
 		/// <summary>
 		/// Gets the value.
 		/// </summary>
