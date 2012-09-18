@@ -144,7 +144,7 @@ namespace Mono.Debugging.Evaluation
 		public override ValueReference GetChild (string name, EvaluationOptions options)
 		{
 			object obj = Value;
-			
+
 			if (obj == null)
 				return null;
 
