@@ -379,9 +379,6 @@ namespace Mono.Debugging.Evaluation
 			if (t == null || IsTypeLoaded (ctx, t))
 				return t;
 
-			if (!ctx.Options.AllowTargetInvoke)
-				return null;
-
 			if (ForceLoadType (ctx, t))
 				return t;
 
