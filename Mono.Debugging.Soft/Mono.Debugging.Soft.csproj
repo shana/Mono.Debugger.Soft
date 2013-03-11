@@ -10,7 +10,7 @@
     <RootNamespace>Mono.Debugging.Soft</RootNamespace>
     <AssemblyName>Mono.Debugging.Soft</AssemblyName>
     <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Mono.Debugging\mono.debugging.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>mono.debugging.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -31,16 +31,12 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <ProjectReference Include="..\Mono.Debugging\Mono.Debugging.csproj">
-      <Project>{90C99ADB-7D4B-4EB4-98C2-40BD1B14C7D2}</Project>
-      <Name>Mono.Debugging</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Mono.Debugger.Soft\Mono.Debugger.Soft.csproj">
-      <Project>{D7DC4662-463B-4150-8172-BC0E096B8893}</Project>
-      <Name>Mono.Debugger.Soft</Name>
-      <Private>False</Private>
-    </ProjectReference>
+    <Reference Include="Mono.Debugging">
+      <HintPath>..\Mono.Debugging\bin\Debug\Mono.Debugging.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Debugger.Soft">
+      <HintPath>..\Mono.Debugger.Soft\bin\Debug\Mono.Debugger.Soft.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>..\lib\Cecil\Mono.Cecil.dll</HintPath>
     </Reference>
