@@ -57,6 +57,7 @@ namespace Mono.Debugging.Evaluation
 		}
 		
 		#region IObjectValueSource implementation
+
 		public ObjectValue[] GetChildren (ObjectPath path, int index, int count, EvaluationOptions options)
 		{
 			EvaluationContext cctx = ctx.WithOptions (options);
