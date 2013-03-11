@@ -48,7 +48,7 @@ namespace Mono.Debugging.Evaluation
 			fullName = ctx.Adapter.GetDisplayTypeName (ctx, type);
 			name = GetTypeName (fullName);
 		}
-
+		
 		internal static string GetTypeName (string tname)
 		{
 			tname = tname.Replace ('+','.');
@@ -64,7 +64,7 @@ namespace Mono.Debugging.Evaluation
 			else
 				return tname;
 		}
-
+		
 		public override object Value {
 			get {
 				throw new NotSupportedException ();
@@ -74,26 +74,26 @@ namespace Mono.Debugging.Evaluation
 			}
 		}
 
-
+		
 		public override object Type {
 			get {
 				return type;
 			}
 		}
-
+		
 		public override object ObjectValue {
 			get {
 				throw new NotSupportedException ();
 			}
 		}
 
-
+		
 		public override string Name {
 			get {
 				return name;
 			}
 		}
-
+		
 		public override ObjectValueFlags Flags {
 			get {
 				return ObjectValueFlags.Type;
@@ -130,10 +130,10 @@ namespace Mono.Debugging.Evaluation
 				bool groupPrivateMembers = options.GroupPrivateMembers && (options.GroupUserPrivateMembers || ctx.Adapter.IsExternalType (ctx, type));
 				if (!groupPrivateMembers)
 					flags |= BindingFlags.NonPublic;
-
+				
 				TypeDisplayData tdata = ctx.Adapter.GetTypeDisplayData (ctx, type);
 				object tdataType = type;
-
+				
 				foreach (ValueReference val in ctx.Adapter.GetMembersSorted (ctx, this, type, null, flags)) {
 					object decType = val.DeclaringType;
 					if (decType != null && decType != tdataType) {
@@ -147,20 +147,20 @@ namespace Mono.Debugging.Evaluation
 					ObjectValue oval = val.CreateObjectValue (options);
 					list.Add (oval);
 				}
-
+				
 				List<ObjectValue> nestedTypes = new List<ObjectValue> ();
 				foreach (object t in ctx.Adapter.GetNestedTypes (ctx, type))
 					nestedTypes.Add (new TypeValueReference (ctx, t).CreateObjectValue (options));
-
+				
 				nestedTypes.Sort (delegate (ObjectValue v1, ObjectValue v2) {
 					return v1.Name.CompareTo (v2.Name);
 				});
-
+				
 				list.AddRange (nestedTypes);
-
+				
 				if (groupPrivateMembers)
 					list.Add (FilteredMembersSource.CreateNonPublicsNode (ctx, this, type, null, BindingFlags.NonPublic | BindingFlags.Static | flattenFlag));
-
+				
 				if (!options.FlattenHierarchy) {
 					object baseType = ctx.Adapter.GetBaseType (ctx, type, false);
 					if (baseType != null) {
@@ -170,7 +170,7 @@ namespace Mono.Debugging.Evaluation
 						list.Insert (0, baseVal);
 					}
 				}
-
+				
 				return list.ToArray ();
 			} catch (Exception ex) {
 				Console.WriteLine (ex);
@@ -185,11 +185,11 @@ namespace Mono.Debugging.Evaluation
 			try {
 				List<ValueReference> list = new List<ValueReference> ();
 				list.AddRange (ctx.Adapter.GetMembersSorted (ctx, this, type, null, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
-
+				
 				List<ValueReference> nestedTypes = new List<ValueReference> ();
 				foreach (object t in ctx.Adapter.GetNestedTypes (ctx, type))
 					nestedTypes.Add (new TypeValueReference (ctx, t));
-
+				
 				nestedTypes.Sort (delegate (ValueReference v1, ValueReference v2) {
 					return v1.Name.CompareTo (v2.Name);
 				});

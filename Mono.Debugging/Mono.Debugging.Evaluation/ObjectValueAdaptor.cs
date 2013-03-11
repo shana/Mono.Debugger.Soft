@@ -276,6 +276,7 @@ namespace Mono.Debugging.Evaluation
 		public abstract bool IsString (EvaluationContext ctx, object val);
 		public abstract bool IsArray (EvaluationContext ctx, object val);
 		public abstract bool IsEnum (EvaluationContext ctx, object val);
+		public abstract bool IsValueType (object type);
 		public abstract bool IsClass (object type);
 		public abstract object TryCast (EvaluationContext ctx, object val, object type);
 
@@ -464,7 +465,7 @@ namespace Mono.Debugging.Evaluation
 				return oval;
 			}
 		}
-
+		
 		public ObjectValue[] GetObjectValueChildren (EvaluationContext ctx, IObjectSource objectSource, object obj, int firstItemIndex, int count)
 		{
 			return GetObjectValueChildren (ctx, objectSource, GetValueType (ctx, obj), obj, firstItemIndex, count, true);

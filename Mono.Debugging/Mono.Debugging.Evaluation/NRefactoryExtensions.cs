@@ -91,7 +91,7 @@ namespace Mono.Debugging.Evaluation
 
 			return name;
 		}
-
+		
 		#endregion ComposedType
 
 		#region MemberType
